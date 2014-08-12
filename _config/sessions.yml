@@ -1,0 +1,8 @@
+---
+Name: sessions
+---
+Injector:
+  RequestProcessor:
+    properties:
+      filters:
+        - '%$HybridSessionStore_RequestFilter'
