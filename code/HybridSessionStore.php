@@ -126,15 +126,23 @@ class HybridSessionStore_Crypto {
 	}
 }
 
-interface HybridSessionStore_Backend {
-	static function session_get($id, $expiry, $data);
-	static function session_set($id, $expiry, $data);
-	static function session_gc();
-}
-
+/**
+ * Class HybridSessionStore_Cookie
+ *
+ * A session store which stores the session data in an encrypted & signed cookie.
+ *
+ * This way the server doesn't need to open a database connection or have a shared filesystem for reading
+ * the session from - the client passes through the session with every request.
+ *
+ * This approach does have some limitations - cookies can only be quite small (4K total, but we limit to 1K)
+ * and can only be set _before_ the server starts sending a response.
+ *
+ * So we clear the cookie on Session startup (which should always be before the headers get sent), but just
+ * fail on Session write if we can't use cookies, assuming there's something watching for that & providing a fallback
+ */
 class HybridSessionStore_Cookie implements SessionHandlerInterface {
 
-	private static $key = "Some Random String";
+	private static $key = null;
 
 	private $crypto;
 
@@ -142,9 +150,16 @@ class HybridSessionStore_Cookie implements SessionHandlerInterface {
 	private $incomingCookieValue;
 
 	function open($save_path, $name){
-		if (!self::$key) {
-			global $databaseConfig;
-			self::$key = sha1(serialize($databaseConfig));
+
+		// Check we've got a key set, or use the SS_SESSION_KEY environment variable if we don't
+		// If neither set, just warn, as we'll fail over just using database sessions
+		if (!Config::inst()->get('HybridSessionStore_Cookie', 'key')) {
+			if (defined('SS_SESSION_KEY')) {
+				Config::inst()->update('HybridSessionStore_Cookie', 'key', SS_SESSION_KEY);
+			}
+			else {
+				user_error('HybridSessionStore_Cookie::$key not set, disabling cookie-based storage', E_USER_WARNING);
+			}
 		}
 
 		$this->cookie = $name.'_2';
@@ -159,10 +174,12 @@ class HybridSessionStore_Cookie implements SessionHandlerInterface {
 	}
 
 	function read($session_id) {
+		$key = Config::inst()->get('HybridSessionStore_Cookie', 'key');
+
 		// Try using the cookie value
-		if ($this->incomingCookieValue) {
+		if ($key && $this->incomingCookieValue) {
 			if (!$this->crypto || $this->crypto->salt != $session_id) {
-				$this->crypto = new HybridSessionStore_Crypto(self::$key, $session_id);
+				$this->crypto = new HybridSessionStore_Crypto($key, $session_id);
 			}
 
 			$cookieData = $this->crypto->decrypt($this->incomingCookieValue);
@@ -177,9 +194,11 @@ class HybridSessionStore_Cookie implements SessionHandlerInterface {
 	}
 
 	function write($session_id, $session_data) {
-		if (strlen($session_data) < 1024 && !headers_sent()) {
+		$key = Config::inst()->get('HybridSessionStore_Cookie', 'key');
+
+		if ($key && strlen($session_data) < 1024 && !headers_sent()) {
 			if (!$this->crypto || $this->crypto->salt != $session_id) {
-				$this->crypto = new HybridSessionStore_Crypto(self::$key, $session_id);
+				$this->crypto = new HybridSessionStore_Crypto($key, $session_id);
 			}
 
 			$params = session_get_cookie_params();
