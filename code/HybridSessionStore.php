@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * PHP 5.4 defines SessionHandlerInterface, but PHP 5.3 doesn't. For backwards compatibility, if it doesn't exist
+ * define it.
+ *
+ * Then, either way, add a new function "register_sessionhandler" which takes a SessionHandlerInterface and
+ * registers it (including registering session_write_close as a shutdown function)
+ */
 if (!interface_exists('SessionHandlerInterface')){
 	interface SessionHandlerInterface {
 		/* Methods */
@@ -30,6 +37,11 @@ else {
 	}
 }
 
+/**
+ * Class HybridSessionStore_Crypto
+ * Some cryptography used for Session cookie encryption. Requires the mcrypt extension.
+ *
+ */
 class HybridSessionStore_Crypto {
 
 	private $key;
@@ -39,7 +51,21 @@ class HybridSessionStore_Crypto {
 	public $salt;
 	private $saltedKey;
 
-	function __construct($key, $salt) {
+	/**
+	 * @param $key a per-site secret string which is used as the base encryption key.
+	 * @param $salt a per-session random string which is used as a salt to generate a per-session key
+	 *
+	 * The base encryption key needs to stay secret. If an attacker ever gets it, they can read their session,
+	 * and even modify & re-sign it.
+	 *
+	 * The salt is a random per-session string that is used with the base encryption key to create a per-session key.
+	 * This (amongst other things) makes sure an attacker can't use a known-plaintext attack to guess the key.
+	 *
+	 * Normally we could create a salt on encryption, send it to the client as part of the session (it doesn't
+	 * need to remain secret), then use the returned salt to decrypt. But we already have the Session ID which makes
+	 * a great salt, so no need to generate & handle another one.
+	 */
+	public function __construct($key, $salt) {
 		$this->ivSize = mcrypt_get_iv_size(MCRYPT_RIJNDAEL_256, MCRYPT_MODE_CBC);
 		$this->keySize = mcrypt_get_key_size(MCRYPT_RIJNDAEL_256, MCRYPT_MODE_CBC);
 
@@ -87,7 +113,13 @@ class HybridSessionStore_Crypto {
 	}
 
 
-	function encrypt($cleartext) {
+	/**
+	 * Encrypt and then sign some cleartext
+	 *
+	 * @param $cleartext - The cleartext to encrypt and sign
+	 * @return string - The encrypted-and-signed message as base64 ASCII.
+	 */
+	public function encrypt($cleartext) {
 		$iv = mcrypt_create_iv($this->ivSize);
 
 		$enc = mcrypt_encrypt(
@@ -103,7 +135,13 @@ class HybridSessionStore_Crypto {
 		return base64_encode($iv.$hash.$enc);
 	}
 
-	function decrypt($data) {
+	/**
+	 * Check the signature on an encrypted-and-signed message, and if valid decrypt the content
+	 *
+	 * @param $data - The encrypted-and-signed message as base64 ASCII
+	 * @return bool|string - The decrypted cleartext or false if signature failed
+	 */
+	public function decrypt($data) {
 		$data = base64_decode($data);
 
 		$iv   = substr($data, 0, $this->ivSize);
