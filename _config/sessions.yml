@@ -6,3 +6,11 @@ Injector:
     properties:
       filters:
         - '%$HybridSessionStore_RequestFilter'
+---
+Name: sessionstores
+---
+HybridSessionStore:
+  dependencies:
+    handlers:
+      - '%$HybridSessionStore_Cookie'
+      - '%$HybridSessionStore_Database'
