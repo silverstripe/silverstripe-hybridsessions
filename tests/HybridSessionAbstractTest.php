@@ -5,9 +5,7 @@ abstract class HybridSessionAbstractTest extends SapphireTest {
 	public function setUp() {
 		parent::setUp();
 
-		Config::nest();
 		HybridSessionAbstractTest_TestCookieBackend::$override_headers_sent = false;
-		Config::inst()->update('HybridSessionStore_Cookie', 'key', uniqid());
 
 		Injector::nest();
 		Injector::inst()->registerService(
@@ -26,7 +24,6 @@ abstract class HybridSessionAbstractTest extends SapphireTest {
 	public function tearDown() {
 		Injector::unnest();
 		SS_Datetime::clear_mock_now();
-		Config::unnest();
 
 		parent::tearDown();
 	}
@@ -93,7 +90,6 @@ abstract class HybridSessionAbstractTest extends SapphireTest {
 	public function testExpiry() {
 		$session1 = uniqid();
 		$store = $this->getStore();
-		$lifetime = $store->getLifetime();
 
 		// Store data now
 		$data1 = array(

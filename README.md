@@ -16,9 +16,17 @@ multi-server issues like asset storage and databases).
 ## Installation
 
 * Install with composer using `composer require silverstripe/hybridsession:*`
-* Set the `HybridSessionStore_Cookie.key` config setting to some random hidden value.
-  You can alternatively set a SS_SESSION_KEY constant in your _ss_environment.php.
 * /dev/build?flush=all to setup the necessary tables
+* In order to initiate the session handler is is necessary to add a snippet of code to your
+  _config.php, along with a private key used to encrypt user cookies.
+
+in `mysite/_config.php`
+
+```php
+// Ensure that you define a sufficiently indeterminable
+// value for SS_SESSION_KEY in your _ss_environment.php
+HybridSessionStore::init(SS_SESSION_KEY);
+```
 
 ## Security
 
