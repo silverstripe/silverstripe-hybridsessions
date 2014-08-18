@@ -9,7 +9,9 @@ class HybridSessionDatabaseTest extends HybridSessionAbstractTest {
 	 * @return HybridSessionStore_Database
 	 */
 	protected function getStore() {
-		return Injector::inst()->get('HybridSessionStore_Database');
+		$store = Injector::inst()->get('HybridSessionStore_Database');
+		$store->setKey(uniqid());
+		return $store;
 	}
 
 }

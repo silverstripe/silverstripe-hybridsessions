@@ -5,7 +5,7 @@ php:
   - 5.4
 
 env:
-  - DB=MYSQL CORE_RELEASE=3.1 SS_SESSION_KEY=TESTSESSIONKEY
+  - DB=MYSQL CORE_RELEASE=3.1
 
 before_script:
   - composer self-update

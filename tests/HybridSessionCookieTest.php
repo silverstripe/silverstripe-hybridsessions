@@ -10,6 +10,7 @@ class HybridSessionCookieTest extends HybridSessionAbstractTest {
 	 */
 	protected function getStore() {
 		$store = Injector::inst()->get('HybridSessionStore_Cookie');
+		$store->setKey(uniqid());
 		$store->open(getTempFolder().'/'.__CLASS__, 'SESSIONCOOKIE');
 		return $store;
 	}
