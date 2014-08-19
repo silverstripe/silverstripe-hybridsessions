@@ -120,7 +120,7 @@ class HybridSessionStore_Crypto {
 	 * @return string - The encrypted-and-signed message as base64 ASCII.
 	 */
 	public function encrypt($cleartext) {
-		$iv = mcrypt_create_iv($this->ivSize);
+		$iv = mcrypt_create_iv($this->ivSize, MCRYPT_DEV_URANDOM);
 
 		$enc = mcrypt_encrypt(
 			MCRYPT_RIJNDAEL_256,
