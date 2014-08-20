@@ -445,6 +445,13 @@ class HybridSessionStore extends HybridSessionStore_Base {
 	protected $handlers = array();
 
 	/**
+	 * True if this session store has been initialised
+	 *
+	 * @var bool
+	 */
+	protected static $enabled = false;
+
+	/**
 	 * @param array[HybridSessionStore_Base]
 	 */
 	public function setHandlers($handlers) {
@@ -524,6 +531,11 @@ class HybridSessionStore extends HybridSessionStore_Base {
 			$instance->setKey($key);
 		}
 		register_sessionhandler($instance);
+		self::$enabled = true;
+	}
+
+	public static function is_enabled() {
+		return self::$enabled;
 	}
 }
 
@@ -533,6 +545,8 @@ class HybridSessionStore_RequestFilter implements RequestFilter {
 	}
 
 	public function postRequest(SS_HTTPRequest $request, SS_HTTPResponse $response, DataModel $model) {
-		session_write_close();
+		if(HybridSessionStore::is_enabled()) {
+			session_write_close();
+		}
 	}
 }
