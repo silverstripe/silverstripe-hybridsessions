@@ -15,7 +15,7 @@ multi-server issues like asset storage and databases).
 
 ## Installation
 
-* Install with composer using `composer require silverstripe/hybridsession:*`
+* Install with composer using `composer require silverstripe/hybridsessions:*`
 * /dev/build?flush=all to setup the necessary tables
 * In order to initiate the session handler is is necessary to add a snippet of code to your
   _config.php, along with a private key used to encrypt user cookies.
