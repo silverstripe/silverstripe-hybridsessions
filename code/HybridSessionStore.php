@@ -71,47 +71,8 @@ class HybridSessionStore_Crypto {
 
 		$this->key = $key;
 		$this->salt = $salt;
-		$this->saltedkey = function_exists('hash_pbkdf2') ?
-			hash_pbkdf2('sha256', $this->key, $this->salt, 1000, $this->keySize, true) :
-			$this->hash_pbkdf2('sha256', $this->key, $this->salt, 100, $this->keySize);
+		$this->saltedKey = hash_pbkdf2('sha256', $this->key, $this->salt, 1000, $this->keySize, true);
 	}
-
-	/*-----------------------------------------------------------
-	* PBKDF2 Implementation (described in RFC 2898) from php.net
-	*-----------------------------------------------------------
-	* @param   string  a   hash algorithm
-	* @param   string  p   password
-	* @param   string  s   salt
-	* @param   int     c   iteration count (use 1000 or higher)
-	* @param   int     kl  derived key length
-	* @param   int     st  start position of result
-	*
-	* @return  string  derived key
-	*/
-	private function hash_pbkdf2 ($a, $p, $s, $c, $kl, $st=0) {
-		$kb  =  $st+$kl;     // Key blocks to compute
-		$dk  =  '';          // Derived key
-
-		// Create key
-		for ($block=1; $block<=$kb; $block++) {
-
-			// Initial hash for this block
-			$ib = $h = hash_hmac($a, $s . pack('N', $block), $p, true);
-
-			// Perform block iterations
-			for ($i=1; $i<$c; $i++) {
-				// XOR each iterate
-				$ib  ^=  ($h = hash_hmac($a, $h, $p, true));
-			}
-
-			$dk  .=  $ib;   // Append iterated block
-
-		}
-
-		// Return derived key of correct length
-		return substr($dk, $st, $kl);
-	}
-
 
 	/**
 	 * Encrypt and then sign some cleartext
