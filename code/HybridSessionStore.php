@@ -2,12 +2,12 @@
 
 /**
  * PHP 5.4 defines SessionHandlerInterface, but PHP 5.3 doesn't. For backwards compatibility, if it doesn't exist
- * define it.
+ * (and no other fallback exists in other libraries) then define it.
  *
  * Then, either way, add a new function "register_sessionhandler" which takes a SessionHandlerInterface and
  * registers it (including registering session_write_close as a shutdown function)
  */
-if (!interface_exists('SessionHandlerInterface')) {
+if(!interface_exists('SessionHandlerInterface')) {
 	interface SessionHandlerInterface {
 		/* Methods */
 		public function close();
@@ -17,7 +17,9 @@ if (!interface_exists('SessionHandlerInterface')) {
 		public function read($session_id);
 		public function write($session_id, $session_data);
 	}
+}
 
+if(version_compare(PHP_VERSION, '5.4.0', '<')) {
 	function register_sessionhandler($handler) {
 		session_set_save_handler(
 			array($handler, 'open'),
