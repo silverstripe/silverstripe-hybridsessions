@@ -474,7 +474,7 @@ class HybridSessionStore extends HybridSessionStore_Base {
 
 	public function gc($maxlifetime) {
 		foreach ($this->handlers as $handler) {
-			$handler->gc();
+			$handler->gc($maxlifetime);
 		}
 	}
 
