@@ -1,5 +1,7 @@
 # Hybrid Sessions
 
+[![Build Status](https://travis-ci.org/silverstripe-labs/silverstripe-hybridsessions.svg?branch=master)](https://travis-ci.org/silverstripe-labs/silverstripe-hybridsessions)
+
 ## Introduction
 
 Adds a session handler that tries storing the session in an encrypted cookie when possible, and if not (
