@@ -2,7 +2,7 @@
 	"name": "silverstripe/hybridsessions",
 	"description": "Cookie/DB session support for SilverStripe",
 	"type": "silverstripe-module",
-	"keyword": ["silverstripe", "session", "cwp"],
+	"keywords": ["silverstripe", "session", "cwp"],
 	"license": "BSD-3-Clause",
 	"authors": [
 		{
@@ -17,6 +17,11 @@
 	},
 	"require-dev": {
 		"phpunit/PHPUnit": "~3.7@stable"
+	},
+	"extra": {
+		"branch-alias": {
+			"dev-master": "1.1.x-dev"
+		}
 	},
 	"minimum-stability": "dev"
 }
