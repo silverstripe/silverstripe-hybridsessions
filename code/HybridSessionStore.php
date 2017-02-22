@@ -273,7 +273,16 @@ class HybridSessionStore_Cookie extends HybridSessionStore_Base {
 		// This is intended to force a failover to the database store if the
 		// modified session cannot be emitted.
 		$this->currentCookieData = Cookie::get($this->cookie);
-		if ($this->currentCookieData) Cookie::set($this->cookie, '');
+		$params = session_get_cookie_params();
+		if ($this->currentCookieData) {
+			Cookie::set(
+			$this->cookie, 
+			'', 
+			90, 
+			$params['path'], 
+			$params['domain'], 
+			$params['secure']);
+		}
 	}
 
 	public function close(){
@@ -357,7 +366,8 @@ class HybridSessionStore_Cookie extends HybridSessionStore_Base {
 
 	public function destroy($session_id) {
 		$this->currentCookieData = null;
-		Cookie::force_expiry($this->cookie);
+		$params = session_get_cookie_params();
+        Cookie::force_expiry($this->cookie, $params['path'], $params['domain'], $params['secure'], $params['httponly']);
 	}
 
 	public function gc($maxlifetime) {
