@@ -281,7 +281,7 @@ class HybridSessionStore_Cookie extends HybridSessionStore_Base {
 			90, 
 			$params['path'], 
 			$params['domain'], 
-			$params['secure']
+			$params['secure'],
 			$params['httponly']);
 		}
 	}
