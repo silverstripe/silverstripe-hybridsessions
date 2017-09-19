@@ -1,6 +1,6 @@
 # Hybrid Sessions
 
-[![Build Status](https://travis-ci.org/silverstripe-labs/silverstripe-hybridsessions.svg?branch=master)](https://travis-ci.org/silverstripe-labs/silverstripe-hybridsessions)
+[![Build Status](https://travis-ci.org/silverstripe/silverstripe-hybridsessions.svg?branch=master)](https://travis-ci.org/silverstripe/silverstripe-hybridsessions)
 
 ## Introduction
 
