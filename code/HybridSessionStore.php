@@ -7,36 +7,38 @@
  * Then, either way, add a new function "register_sessionhandler" which takes a SessionHandlerInterface and
  * registers it (including registering session_write_close as a shutdown function)
  */
-if(!interface_exists('SessionHandlerInterface')) {
-	interface SessionHandlerInterface {
-		/* Methods */
-		public function close();
-		public function destroy($session_id);
-		public function gc($maxlifetime);
-		public function open($save_path, $name);
-		public function read($session_id);
-		public function write($session_id, $session_data);
-	}
+if (!interface_exists('SessionHandlerInterface')) {
+    interface SessionHandlerInterface
+    {
+        /* Methods */
+        public function close();
+        public function destroy($session_id);
+        public function gc($maxlifetime);
+        public function open($save_path, $name);
+        public function read($session_id);
+        public function write($session_id, $session_data);
+    }
 }
 
-if(version_compare(PHP_VERSION, '5.4.0', '<')) {
-	function register_sessionhandler($handler) {
-		session_set_save_handler(
-			array($handler, 'open'),
-			array($handler, 'close'),
-			array($handler, 'read'),
-			array($handler, 'write'),
-			array($handler, 'destroy'),
-			array($handler, 'gc')
-		);
+if (version_compare(PHP_VERSION, '5.4.0', '<')) {
+    function register_sessionhandler($handler)
+    {
+        session_set_save_handler(
+            array($handler, 'open'),
+            array($handler, 'close'),
+            array($handler, 'read'),
+            array($handler, 'write'),
+            array($handler, 'destroy'),
+            array($handler, 'gc')
+        );
 
-		register_shutdown_function('session_write_close');
-	}
-}
-else {
-	function register_sessionhandler($handler) {
-		session_set_save_handler($handler, true);
-	}
+        register_shutdown_function('session_write_close');
+    }
+} else {
+    function register_sessionhandler($handler)
+    {
+        session_set_save_handler($handler, true);
+    }
 }
 
 /**
@@ -44,136 +46,147 @@ else {
  * Some cryptography used for Session cookie encryption. Requires the mcrypt extension.
  *
  */
-class HybridSessionStore_Crypto {
+class HybridSessionStore_Crypto
+{
 
-	private $key;
-	private $ivSize;
-	private $keySize;
+    private $key;
+    private $ivSize;
+    private $keySize;
 
-	public $salt;
-	private $saltedKey;
+    public $salt;
+    private $saltedKey;
 
-	/**
-	 * @param $key a per-site secret string which is used as the base encryption key.
-	 * @param $salt a per-session random string which is used as a salt to generate a per-session key
-	 *
-	 * The base encryption key needs to stay secret. If an attacker ever gets it, they can read their session,
-	 * and even modify & re-sign it.
-	 *
-	 * The salt is a random per-session string that is used with the base encryption key to create a per-session key.
-	 * This (amongst other things) makes sure an attacker can't use a known-plaintext attack to guess the key.
-	 *
-	 * Normally we could create a salt on encryption, send it to the client as part of the session (it doesn't
-	 * need to remain secret), then use the returned salt to decrypt. But we already have the Session ID which makes
-	 * a great salt, so no need to generate & handle another one.
-	 */
-	public function __construct($key, $salt) {
-		$this->ivSize = mcrypt_get_iv_size(MCRYPT_RIJNDAEL_256, MCRYPT_MODE_CBC);
-		$this->keySize = mcrypt_get_key_size(MCRYPT_RIJNDAEL_256, MCRYPT_MODE_CBC);
+    /**
+     * @param $key a per-site secret string which is used as the base encryption key.
+     * @param $salt a per-session random string which is used as a salt to generate a per-session key
+     *
+     * The base encryption key needs to stay secret. If an attacker ever gets it, they can read their session,
+     * and even modify & re-sign it.
+     *
+     * The salt is a random per-session string that is used with the base encryption key to create a per-session key.
+     * This (amongst other things) makes sure an attacker can't use a known-plaintext attack to guess the key.
+     *
+     * Normally we could create a salt on encryption, send it to the client as part of the session (it doesn't
+     * need to remain secret), then use the returned salt to decrypt. But we already have the Session ID which makes
+     * a great salt, so no need to generate & handle another one.
+     */
+    public function __construct($key, $salt)
+    {
+        $this->ivSize = mcrypt_get_iv_size(MCRYPT_RIJNDAEL_256, MCRYPT_MODE_CBC);
+        $this->keySize = mcrypt_get_key_size(MCRYPT_RIJNDAEL_256, MCRYPT_MODE_CBC);
 
-		$this->key = $key;
-		$this->salt = $salt;
-		$this->saltedKey = hash_pbkdf2('sha256', $this->key, $this->salt, 1000, $this->keySize, true);
-	}
+        $this->key = $key;
+        $this->salt = $salt;
+        $this->saltedKey = hash_pbkdf2('sha256', $this->key, $this->salt, 1000, $this->keySize, true);
+    }
 
-	/**
-	 * Encrypt and then sign some cleartext
-	 *
-	 * @param $cleartext - The cleartext to encrypt and sign
-	 * @return string - The encrypted-and-signed message as base64 ASCII.
-	 */
-	public function encrypt($cleartext) {
-		$iv = mcrypt_create_iv($this->ivSize, MCRYPT_DEV_URANDOM);
+    /**
+     * Encrypt and then sign some cleartext
+     *
+     * @param $cleartext - The cleartext to encrypt and sign
+     * @return string - The encrypted-and-signed message as base64 ASCII.
+     */
+    public function encrypt($cleartext)
+    {
+        $iv = mcrypt_create_iv($this->ivSize, MCRYPT_DEV_URANDOM);
 
-		$enc = mcrypt_encrypt(
-			MCRYPT_RIJNDAEL_256,
-			$this->saltedKey,
-			$cleartext,
-			MCRYPT_MODE_CBC,
-			$iv
-		);
+        $enc = mcrypt_encrypt(
+            MCRYPT_RIJNDAEL_256,
+            $this->saltedKey,
+            $cleartext,
+            MCRYPT_MODE_CBC,
+            $iv
+        );
 
-		$hash = hash_hmac('sha256', $enc, $this->saltedKey);
+        $hash = hash_hmac('sha256', $enc, $this->saltedKey);
 
-		return base64_encode($iv.$hash.$enc);
-	}
+        return base64_encode($iv.$hash.$enc);
+    }
 
-	/**
-	 * Check the signature on an encrypted-and-signed message, and if valid decrypt the content
-	 *
-	 * @param $data - The encrypted-and-signed message as base64 ASCII
-	 * @return bool|string - The decrypted cleartext or false if signature failed
-	 */
-	public function decrypt($data) {
-		$data = base64_decode($data);
+    /**
+     * Check the signature on an encrypted-and-signed message, and if valid decrypt the content
+     *
+     * @param $data - The encrypted-and-signed message as base64 ASCII
+     * @return bool|string - The decrypted cleartext or false if signature failed
+     */
+    public function decrypt($data)
+    {
+        $data = base64_decode($data);
 
-		$iv   = substr($data, 0, $this->ivSize);
-		$hash = substr($data, $this->ivSize, 64);
-		$enc  = substr($data, $this->ivSize + 64);
+        $iv   = substr($data, 0, $this->ivSize);
+        $hash = substr($data, $this->ivSize, 64);
+        $enc  = substr($data, $this->ivSize + 64);
 
-		$cleartext = rtrim(mcrypt_decrypt(
-			MCRYPT_RIJNDAEL_256,
-			$this->saltedKey,
-			$enc,
-			MCRYPT_MODE_CBC,
-			$iv
-		), "\x00");
+        $cleartext = rtrim(mcrypt_decrypt(
+            MCRYPT_RIJNDAEL_256,
+            $this->saltedKey,
+            $enc,
+            MCRYPT_MODE_CBC,
+            $iv
+        ), "\x00");
 
-		// Needs to be after decrypt so it always runs, to avoid timing attack
-		$gen_hash = hash_hmac('sha256', $enc, $this->saltedKey);
+        // Needs to be after decrypt so it always runs, to avoid timing attack
+        $gen_hash = hash_hmac('sha256', $enc, $this->saltedKey);
 
-		if ($gen_hash == $hash) return $cleartext;
-		return false;
-	}
+        if ($gen_hash == $hash) {
+            return $cleartext;
+        }
+        return false;
+    }
 }
 
-abstract class HybridSessionStore_Base implements SessionHandlerInterface {
+abstract class HybridSessionStore_Base implements SessionHandlerInterface
+{
 
-	/**
-	 * Session secret key
-	 *
-	 * @var string
-	 */
-	protected $key = null;
+    /**
+     * Session secret key
+     *
+     * @var string
+     */
+    protected $key = null;
 
-	/**
-	 * Assign a new session secret key
-	 *
-	 * @param string $key
-	 */
-	public function setKey($key) {
-		$this->key = $key;
-	}
+    /**
+     * Assign a new session secret key
+     *
+     * @param string $key
+     */
+    public function setKey($key)
+    {
+        $this->key = $key;
+    }
 
-	/**
-	 * Get the session secret key
-	 *
-	 * @return string
-	 */
-	protected function getKey() {
-		return $this->key;
-	}
+    /**
+     * Get the session secret key
+     *
+     * @return string
+     */
+    protected function getKey()
+    {
+        return $this->key;
+    }
 
-	/**
-	 * Get lifetime in number of seconds
-	 *
-	 * @return int
-	 */
-	protected function getLifetime() {
-		$params = session_get_cookie_params();
-		$cookieLifetime = (int)$params['lifetime'];
-		$gcLifetime = (int)ini_get('session.gc_maxlifetime');
-		return $cookieLifetime ? min($cookieLifetime, $gcLifetime) : $gcLifetime;
-	}
+    /**
+     * Get lifetime in number of seconds
+     *
+     * @return int
+     */
+    protected function getLifetime()
+    {
+        $params = session_get_cookie_params();
+        $cookieLifetime = (int)$params['lifetime'];
+        $gcLifetime = (int)ini_get('session.gc_maxlifetime');
+        return $cookieLifetime ? min($cookieLifetime, $gcLifetime) : $gcLifetime;
+    }
 
-	/**
-	 * Gets the current unix timestamp
-	 *
-	 * @return int
-	 */
-	protected function getNow() {
-		return (int)SS_Datetime::now()->Format('U');
-	}
+    /**
+     * Gets the current unix timestamp
+     *
+     * @return int
+     */
+    protected function getNow()
+    {
+        return (int)SS_Datetime::now()->Format('U');
+    }
 }
 
 /**
@@ -190,326 +203,380 @@ abstract class HybridSessionStore_Base implements SessionHandlerInterface {
  * So we clear the cookie on Session startup (which should always be before the headers get sent), but just
  * fail on Session write if we can't use cookies, assuming there's something watching for that & providing a fallback
  */
-class HybridSessionStore_Cookie extends HybridSessionStore_Base {
+class HybridSessionStore_Cookie extends HybridSessionStore_Base
+{
 
-	/**
-	 * Maximum length of a cookie value in characters
-	 *
-	 * @var int
-	 * @config
-	 */
-	private static $max_length = 1024;
+    /**
+     * Maximum length of a cookie value in characters
+     *
+     * @var int
+     * @config
+     */
+    private static $max_length = 1024;
 
-	/**
-	 * Encryption service
-	 *
-	 * @var HybridSessionStore_Crypto
-	 */
-	protected $crypto;
+    /**
+     * Encryption service
+     *
+     * @var HybridSessionStore_Crypto
+     */
+    protected $crypto;
 
-	/**
-	 * Name of cookie
-	 *
-	 * @var string
-	 */
-	protected $cookie;
+    /**
+     * Name of cookie
+     *
+     * @var string
+     */
+    protected $cookie;
 
-	/**
-	 * Known unmodified value of this cookie. If the cookie backend has been read into the application,
-	 * then the backend is unable to verify the modification state of this value internally within the
-	 * system, so this will be left null unless written back.
-	 *
-	 * If the content exceeds max_length then the backend can also not maintain this cookie, also
-	 * setting this variable to null.
-	 *
-	 * @var string
-	 */
-	protected $currentCookieData;
+    /**
+     * Known unmodified value of this cookie. If the cookie backend has been read into the application,
+     * then the backend is unable to verify the modification state of this value internally within the
+     * system, so this will be left null unless written back.
+     *
+     * If the content exceeds max_length then the backend can also not maintain this cookie, also
+     * setting this variable to null.
+     *
+     * @var string
+     */
+    protected $currentCookieData;
 
-	public function open($save_path, $name) {
-		$this->cookie = $name.'_2';
-		// Read the incoming value, then clear the cookie - we might not be able
-		// to do so later if write() is called after headers are sent
-		// This is intended to force a failover to the database store if the
-		// modified session cannot be emitted.
-		$this->currentCookieData = Cookie::get($this->cookie);
-		if ($this->currentCookieData) Cookie::set($this->cookie, '');
-	}
+    public function open($save_path, $name)
+    {
+        $this->cookie = $name.'_2';
+        // Read the incoming value, then clear the cookie - we might not be able
+        // to do so later if write() is called after headers are sent
+        // This is intended to force a failover to the database store if the
+        // modified session cannot be emitted.
+        $this->currentCookieData = Cookie::get($this->cookie);
+        if ($this->currentCookieData) {
+            Cookie::set($this->cookie, '');
+        }
+    }
 
-	public function close() {
-	}
+    public function close()
+    {
+    }
 
-	/**
-	 * Get the cryptography store for the specified session
-	 *
-	 * @param string $session_id
-	 * @return HybridSessionStore_Crypto
-	 */
-	protected function getCrypto($session_id) {
-		$key = $this->getKey();
-		if(!$key) return null;
-		if (!$this->crypto || $this->crypto->salt != $session_id) {
-			$this->crypto = new HybridSessionStore_Crypto($key, $session_id);
-		}
-		return $this->crypto;
-	}
+    /**
+     * Get the cryptography store for the specified session
+     *
+     * @param string $session_id
+     * @return HybridSessionStore_Crypto
+     */
+    protected function getCrypto($session_id)
+    {
+        $key = $this->getKey();
+        if (!$key) {
+            return null;
+        }
+        if (!$this->crypto || $this->crypto->salt != $session_id) {
+            $this->crypto = new HybridSessionStore_Crypto($key, $session_id);
+        }
+        return $this->crypto;
+    }
 
-	public function read($session_id) {
-		// Check ability to safely decrypt content
-		if(!$this->currentCookieData
-			|| !($crypto = $this->getCrypto($session_id))
-		) return;
+    public function read($session_id)
+    {
+        // Check ability to safely decrypt content
+        if (!$this->currentCookieData
+            || !($crypto = $this->getCrypto($session_id))
+        ) {
+            return;
+        }
 
-		// Decrypt and invalidate old data
-		$cookieData = $crypto->decrypt($this->currentCookieData);
-		$this->currentCookieData = null;
+        // Decrypt and invalidate old data
+        $cookieData = $crypto->decrypt($this->currentCookieData);
+        $this->currentCookieData = null;
 
-		// Verify expiration
-		if ($cookieData) {
-			$expiry = (int)substr($cookieData, 0, 10);
-			$data = substr($cookieData, 10);
+        // Verify expiration
+        if ($cookieData) {
+            $expiry = (int)substr($cookieData, 0, 10);
+            $data = substr($cookieData, 10);
 
-			if ($expiry > $this->getNow()) return $data;
-		}
-	}
+            if ($expiry > $this->getNow()) {
+                return $data;
+            }
+        }
+    }
 
-	/**
-	 * Determine if the session could be verifably written to cookie storage
-	 *
-	 * @return bool
-	 */
-	protected function canWrite() {
-		return !headers_sent();
-	}
+    /**
+     * Determine if the session could be verifably written to cookie storage
+     *
+     * @return bool
+     */
+    protected function canWrite()
+    {
+        return !headers_sent();
+    }
 
-	public function write($session_id, $session_data) {
-		// Check ability to safely encrypt and write content
-		if(!$this->canWrite()
-			|| (strlen($session_data) > Config::inst()->get(__CLASS__, 'max_length'))
-			|| !($crypto = $this->getCrypto($session_id))
-		) return false;
+    public function write($session_id, $session_data)
+    {
+        // Check ability to safely encrypt and write content
+        if (!$this->canWrite()
+            || (strlen($session_data) > Config::inst()->get(__CLASS__, 'max_length'))
+            || !($crypto = $this->getCrypto($session_id))
+        ) {
+            return false;
+        }
 
-		// Prepare content for write
-		$params = session_get_cookie_params();
-		// Total max lifetime, stored internally
-		$lifetime = $this->getLifetime();
-		$expiry = $this->getNow() + $lifetime;
+        // Prepare content for write
+        $params = session_get_cookie_params();
+        // Total max lifetime, stored internally
+        $lifetime = $this->getLifetime();
+        $expiry = $this->getNow() + $lifetime;
 
-		// Restore the known good cookie value
-		$this->currentCookieData = $this->crypto->encrypt(
-			sprintf('%010u', $expiry) . $session_data
-		);
+        // Restore the known good cookie value
+        $this->currentCookieData = $this->crypto->encrypt(
+            sprintf('%010u', $expiry) . $session_data
+        );
 
-		// Respect auto-expire on browser close for the session cookie (in case the cookie lifetime is zero)
-		$cookieLifetime = min((int)$params['lifetime'], $lifetime);
-		Cookie::set(
-			$this->cookie,
-			$this->currentCookieData,
-			$cookieLifetime / 86400,
-			$params['path'],
-			$params['domain'],
-			$params['secure'],
-			$params['httponly']
-		);
+        // Respect auto-expire on browser close for the session cookie (in case the cookie lifetime is zero)
+        $cookieLifetime = min((int)$params['lifetime'], $lifetime);
+        Cookie::set(
+            $this->cookie,
+            $this->currentCookieData,
+            $cookieLifetime / 86400,
+            $params['path'],
+            $params['domain'],
+            $params['secure'],
+            $params['httponly']
+        );
 
-		return true;
-	}
+        return true;
+    }
 
-	public function destroy($session_id) {
-		$this->currentCookieData = null;
-		Cookie::force_expiry($this->cookie);
-	}
+    public function destroy($session_id)
+    {
+        $this->currentCookieData = null;
+        Cookie::force_expiry($this->cookie);
+    }
 
-	public function gc($maxlifetime) {
-		// NOP
-	}
+    public function gc($maxlifetime)
+    {
+        // NOP
+    }
 }
 
-class HybridSessionStore_Database extends HybridSessionStore_Base {
+class HybridSessionStore_Database extends HybridSessionStore_Base
+{
 
-	/**
-	 * Determine if the DB is ready to use.
-	 *
-	 * @return bool
-	 * @throws Exception
-	 */
-	protected function isDatabaseReady() {
-		// Such as during setup of testsession prior to DB connection.
-		if(!DB::isActive()) return false;
+    /**
+     * Determine if the DB is ready to use.
+     *
+     * @return bool
+     * @throws Exception
+     */
+    protected function isDatabaseReady()
+    {
+        // Such as during setup of testsession prior to DB connection.
+        if (!DB::isActive()) {
+            return false;
+        }
 
-		// If we have a DB of the wrong type then complain
-		if (!(DB::getConn() instanceof MySQLDatabase)) {
-			throw new Exception('HybridSessionStore currently only works with MySQL databases');
-		}
+        // If we have a DB of the wrong type then complain
+        if (!(DB::getConn() instanceof MySQLDatabase)) {
+            throw new Exception('HybridSessionStore currently only works with MySQL databases');
+        }
 
-		// Prevent freakout during dev/build
-		return ClassInfo::hasTable('HybridSessionDataObject');
-	}
+        // Prevent freakout during dev/build
+        return ClassInfo::hasTable('HybridSessionDataObject');
+    }
 
-	public function open($save_path, $name) {
-	}
+    public function open($save_path, $name)
+    {
+    }
 
-	public function close() {
-	}
+    public function close()
+    {
+    }
 
-	public function read($session_id) {
-		if(!$this->isDatabaseReady()) return null;
+    public function read($session_id)
+    {
+        if (!$this->isDatabaseReady()) {
+            return null;
+        }
 
-		$result = DB::query(sprintf(
-			'SELECT "Data" FROM "HybridSessionDataObject"
+        $result = DB::query(sprintf(
+            'SELECT "Data" FROM "HybridSessionDataObject"
 			WHERE "SessionID" = \'%s\' AND "Expiry" >= %u',
-			Convert::raw2sql($session_id),
-			$this->getNow()
-		));
+            Convert::raw2sql($session_id),
+            $this->getNow()
+        ));
 
-		if ($result && $result->numRecords()) {
-			$data = $result->first();
-			return $data['Data'];
-		}
-	}
+        if ($result && $result->numRecords()) {
+            $data = $result->first();
+            return $data['Data'];
+        }
+    }
 
-	public function write($session_id, $session_data) {
-		if(!$this->isDatabaseReady()) return false;
+    public function write($session_id, $session_data)
+    {
+        if (!$this->isDatabaseReady()) {
+            return false;
+        }
 
-		$expiry = $this->getNow() + $this->getLifetime();
-		DB::query($str = sprintf(
-			'INSERT INTO "HybridSessionDataObject" ("SessionID", "Expiry", "Data")
+        $expiry = $this->getNow() + $this->getLifetime();
+        DB::query($str = sprintf(
+            'INSERT INTO "HybridSessionDataObject" ("SessionID", "Expiry", "Data")
 			VALUES (\'%1$s\', %2$u, \'%3$s\')
 			ON DUPLICATE KEY UPDATE "Expiry" = %2$u, "Data" = \'%3$s\'',
-			Convert::raw2sql($session_id),
-			$expiry,
-			Convert::raw2sql($session_data)
-		));
+            Convert::raw2sql($session_id),
+            $expiry,
+            Convert::raw2sql($session_data)
+        ));
 
-		return true;
-	}
+        return true;
+    }
 
-	public function destroy($session_id) {
-		// NOP
-	}
+    public function destroy($session_id)
+    {
+        // NOP
+    }
 
-	public function gc($maxlifetime) {
-		if(!$this->isDatabaseReady()) return;
-		DB::query(sprintf(
-			'DELETE FROM "HybridSessionDataObject" WHERE "Expiry" < %u',
-			$this->getNow()
-		));
-	}
+    public function gc($maxlifetime)
+    {
+        if (!$this->isDatabaseReady()) {
+            return;
+        }
+        DB::query(sprintf(
+            'DELETE FROM "HybridSessionDataObject" WHERE "Expiry" < %u',
+            $this->getNow()
+        ));
+    }
 }
 
 
-class HybridSessionStore extends HybridSessionStore_Base {
+class HybridSessionStore extends HybridSessionStore_Base
+{
 
-	/**
-	 * List of session handlers
-	 *
-	 * @var array[HybridSessionStore_Base]
-	 */
-	protected $handlers = array();
+    /**
+     * List of session handlers
+     *
+     * @var array[HybridSessionStore_Base]
+     */
+    protected $handlers = array();
 
-	/**
-	 * True if this session store has been initialised
-	 *
-	 * @var bool
-	 */
-	protected static $enabled = false;
+    /**
+     * True if this session store has been initialised
+     *
+     * @var bool
+     */
+    protected static $enabled = false;
 
-	/**
-	 * @param array[HybridSessionStore_Base]
-	 */
-	public function setHandlers($handlers) {
-		$this->handlers = $handlers;
-		$this->setKey($this->getKey());
-	}
+    /**
+     * @param array[HybridSessionStore_Base]
+     */
+    public function setHandlers($handlers)
+    {
+        $this->handlers = $handlers;
+        $this->setKey($this->getKey());
+    }
 
-	public function setKey($key) {
-		parent::setKey($key);
-		foreach($this->handlers as $handler) {
-			$handler->setKey($key);
-		}
-	}
+    public function setKey($key)
+    {
+        parent::setKey($key);
+        foreach ($this->handlers as $handler) {
+            $handler->setKey($key);
+        }
+    }
 
-	/**
-	 * @return array[SessionHandlerInterface]
-	 */
-	public function getHandlers() {
-		return $this->handlers;
-	}
+    /**
+     * @return array[SessionHandlerInterface]
+     */
+    public function getHandlers()
+    {
+        return $this->handlers;
+    }
 
-	public function open($save_path, $name) {
-		foreach ($this->handlers as $handler) {
-			$handler->open($save_path, $name);
-		}
+    public function open($save_path, $name)
+    {
+        foreach ($this->handlers as $handler) {
+            $handler->open($save_path, $name);
+        }
 
-		return true;
-	}
+        return true;
+    }
 
-	public function close(){
-		foreach ($this->handlers as $handler) {
-			$handler->close();
-		}
+    public function close()
+    {
+        foreach ($this->handlers as $handler) {
+            $handler->close();
+        }
 
-		return true;
-	}
+        return true;
+    }
 
-	public function read($session_id) {
-		foreach ($this->handlers as $handler) {
-			if ($data = $handler->read($session_id)) return $data;
-		}
+    public function read($session_id)
+    {
+        foreach ($this->handlers as $handler) {
+            if ($data = $handler->read($session_id)) {
+                return $data;
+            }
+        }
 
-		return '';
-	}
+        return '';
+    }
 
-	public function write($session_id, $session_data) {
-		foreach ($this->handlers as $handler) {
-			if ($handler->write($session_id, $session_data)) return;
-		}
-	}
+    public function write($session_id, $session_data)
+    {
+        foreach ($this->handlers as $handler) {
+            if ($handler->write($session_id, $session_data)) {
+                return;
+            }
+        }
+    }
 
-	public function destroy($session_id) {
-		foreach ($this->handlers as $handler) {
-			$handler->destroy($session_id);
-		}
-	}
+    public function destroy($session_id)
+    {
+        foreach ($this->handlers as $handler) {
+            $handler->destroy($session_id);
+        }
+    }
 
-	public function gc($maxlifetime) {
-		foreach ($this->handlers as $handler) {
-			$handler->gc($maxlifetime);
-		}
-	}
+    public function gc($maxlifetime)
+    {
+        foreach ($this->handlers as $handler) {
+            $handler->gc($maxlifetime);
+        }
+    }
 
-	/**
-	 * Register the session handler as the default
-	 *
-	 * @param string $key Desired session key
-	 */
-	public static function init($key = null) {
-		$instance = Injector::inst()->get(__CLASS__);
-		if(empty($key)) {
-			user_error(
-				'HybridSessionStore::init() was not given a $key. Disabling cookie-based storage',
-				E_USER_WARNING
-			);
-		} else {
-			$instance->setKey($key);
-		}
-		register_sessionhandler($instance);
-		self::$enabled = true;
-	}
+    /**
+     * Register the session handler as the default
+     *
+     * @param string $key Desired session key
+     */
+    public static function init($key = null)
+    {
+        $instance = Injector::inst()->get(__CLASS__);
+        if (empty($key)) {
+            user_error(
+                'HybridSessionStore::init() was not given a $key. Disabling cookie-based storage',
+                E_USER_WARNING
+            );
+        } else {
+            $instance->setKey($key);
+        }
+        register_sessionhandler($instance);
+        self::$enabled = true;
+    }
 
-	public static function is_enabled() {
-		return self::$enabled;
-	}
+    public static function is_enabled()
+    {
+        return self::$enabled;
+    }
 }
 
-class HybridSessionStore_RequestFilter implements RequestFilter {
-	public function preRequest(SS_HTTPRequest $request, Session $session, DataModel $model) {
-		// NOP
-	}
+class HybridSessionStore_RequestFilter implements RequestFilter
+{
+    public function preRequest(SS_HTTPRequest $request, Session $session, DataModel $model)
+    {
+        // NOP
+    }
 
-	public function postRequest(SS_HTTPRequest $request, SS_HTTPResponse $response, DataModel $model) {
-		if(HybridSessionStore::is_enabled()) {
-			session_write_close();
-		}
-	}
+    public function postRequest(SS_HTTPRequest $request, SS_HTTPResponse $response, DataModel $model)
+    {
+        if (HybridSessionStore::is_enabled()) {
+            session_write_close();
+        }
+    }
 }
