@@ -6,14 +6,33 @@ namespace SilverStripe\HybridSessions\Crypto;
  * Some cryptography used for Session cookie encryption. Requires the mcrypt extension.
  *
  */
-class McryptCrypto
+class McryptCrypto implements CryptoHandler
 {
-    private $key;
-    private $ivSize;
-    private $keySize;
+    protected $key;
 
-    public $salt;
-    private $saltedKey;
+    protected $ivSize;
+
+    protected $keySize;
+
+    protected $salt;
+
+    protected $saltedKey;
+
+    /**
+     * @return string
+     */
+    public function getKey()
+    {
+        return $this->key;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSalt()
+    {
+        return $this->salt;
+    }
 
     /**
      * @param $key a per-site secret string which is used as the base encryption key.

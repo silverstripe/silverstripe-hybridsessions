@@ -6,17 +6,33 @@ namespace SilverStripe\HybridSessions\Crypto;
  * Some cryptography used for Session cookie encryption.
  *
  */
-class OpenSSLCrypto
+class OpenSSLCrypto implements CryptoHandler
 {
-    private $key;
+    protected $key;
 
-    public $salt;
+    protected $salt;
 
-    private $saltedKey;
+    protected $saltedKey;
 
     /**
-     * @param $key a per-site secret string which is used as the base encryption key.
-     * @param $salt a per-session random string which is used as a salt to generate a per-session key
+     * @return string
+     */
+    public function getKey()
+    {
+        return $this->key;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSalt()
+    {
+        return $this->salt;
+    }
+
+    /**
+     * @param string $key a per-site secret string which is used as the base encryption key.
+     * @param string $salt a per-session random string which is used as a salt to generate a per-session key
      *
      * The base encryption key needs to stay secret. If an attacker ever gets it, they can read their session,
      * and even modify & re-sign it.
@@ -38,7 +54,7 @@ class OpenSSLCrypto
     /**
      * Encrypt and then sign some cleartext
      *
-     * @param $cleartext - The cleartext to encrypt and sign
+     * @param string $cleartext - The cleartext to encrypt and sign
      * @return string - The encrypted-and-signed message as base64 ASCII.
      */
     public function encrypt($cleartext)
@@ -57,7 +73,7 @@ class OpenSSLCrypto
      * Check the signature on an encrypted-and-signed message, and if valid
      * decrypt the content
      *
-     * @param $data - The encrypted-and-signed message as base64 ASCII
+     * @param string $data - The encrypted-and-signed message as base64 ASCII
      *
      * @return bool|string - The decrypted cleartext or false if signature failed
      */

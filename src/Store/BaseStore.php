@@ -2,11 +2,14 @@
 
 namespace SilverStripe\HybridSessions\Store;
 
-use \SessionHandlerInterface;
+use SessionHandlerInterface;
 use SilverStripe\ORM\FieldType\DBDatetime;
+use SilverStripe\Core\Config\Configurable;
 
 abstract class BaseStore implements SessionHandlerInterface
 {
+    use Configurable;
+
     /**
      * Session secret key
      *

@@ -9,7 +9,6 @@
         "email": "hamish@silverstripe.com"
     }],
     "require": {
-        "assertchris/hash-compat": "~1.0",
         "silverstripe/framework": "^4.0@dev"
     },
     "require-dev": {
@@ -17,21 +16,18 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "1.1.x-dev"
+            "dev-master": "2.0.x-dev"
         }
     },
     "autoload": {
         "psr-4": {
-            "SilverStripe\\HybridSessions\\": "src/"
-        }
-    },
-    "autoload-dev": {
-        "psr-4": {
-          "SilverStripe\\HybridSessions\\Tests\\": "tests/"
+            "SilverStripe\\HybridSessions\\": "src/",
+            "SilverStripe\\HybridSessions\\Tests\\": "tests/"
         }
     },
     "scripts": {
         "lint": "phpcs src/ tests/"
     },
-    "minimum-stability": "dev"
+    "minimum-stability": "dev",
+    "prefer-stable": true
 }

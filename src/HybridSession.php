@@ -22,12 +22,24 @@ class HybridSession extends BaseStore
      */
     protected static $enabled = false;
 
+    /**
+     * @param SessionHandlerInterface[]
+     *
+     * @return $this
+     */
     public function setHandlers($handlers)
     {
         $this->handlers = $handlers;
         $this->setKey($this->getKey());
+
+        return $this;
     }
 
+    /**
+     * @param string
+     *
+     * @return $this
+     */
     public function setKey($key)
     {
         parent::setKey($key);
@@ -35,16 +47,24 @@ class HybridSession extends BaseStore
         foreach ($this->handlers as $handler) {
             $handler->setKey($key);
         }
+
+        return $this;
     }
 
     /**
-     * @return array[SessionHandlerInterface]
+     * @return SessionHandlerInterface[]
      */
     public function getHandlers()
     {
         return $this->handlers;
     }
 
+    /**
+     * @param string $save_path
+     * @param string $name
+     *
+     * @return bool
+     */
     public function open($save_path, $name)
     {
         if ($this->handlers) {
@@ -56,6 +76,9 @@ class HybridSession extends BaseStore
         return true;
     }
 
+    /**
+     * @return bool
+     */
     public function close()
     {
         if ($this->handlers) {
@@ -67,6 +90,11 @@ class HybridSession extends BaseStore
         return true;
     }
 
+    /**
+     * @param string $session_id
+     *
+     * @return string
+     */
     public function read($session_id)
     {
         if ($this->handlers) {
@@ -79,6 +107,7 @@ class HybridSession extends BaseStore
 
         return '';
     }
+
 
     public function write($session_id, $session_data)
     {

@@ -7,7 +7,7 @@ use SilverStripe\ORM\Connect\MySQLDatabase;
 use SilverStripe\Core\ClassInfo;
 use SilverStripe\Core\Convert;
 use SilverStripe\HybridSessions\Store\BaseStore;
-use \Exception;
+use Exception;
 
 class DatabaseStore extends BaseStore
 {
@@ -36,10 +36,12 @@ class DatabaseStore extends BaseStore
 
     public function open($save_path, $name)
     {
+        // no-op
     }
 
     public function close()
     {
+        // no-op
     }
 
     public function read($session_id)

@@ -24,8 +24,7 @@ multi-server issues like asset storage and databases).
 in `mysite/_config.php`
 
 ```php
-// Ensure that you define a sufficiently indeterminable
-// value for SS_SESSION_KEY in your _ss_environment.php
+// Ensure that you define a sufficiently indeterminable value for SS_SESSION_KEY in your `.env`
 use SilverStripe\HybridSessions\HybridSession;
 
 HybridSession::init(SS_SESSION_KEY);

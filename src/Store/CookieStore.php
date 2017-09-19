@@ -3,7 +3,7 @@
 namespace SilverStripe\HybridSessions\Store;
 
 use SilverStripe\Control\Cookie;
-use SilverStripe\HybridSessions\Crypto\OpenSSLCrypto;
+use SilverStripe\HybridSessions\Crypto\CryptoHandler;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Core\Injector\Injector;
 
@@ -89,8 +89,8 @@ class CookieStore extends BaseStore
             return null;
         }
 
-        if (!$this->crypto || $this->crypto->salt != $session_id) {
-            $this->crypto = Injector::inst()->create(OpenSSLCrypto::class, $key, $session_id);
+        if (!$this->crypto || $this->crypto->getSalt() != $session_id) {
+            $this->crypto = Injector::inst()->create(CryptoHandler::class, $key, $session_id);
         }
 
         return $this->crypto;
@@ -134,7 +134,7 @@ class CookieStore extends BaseStore
     {
         // Check ability to safely encrypt and write content
         if (!$this->canWrite()
-            || (strlen($session_data) > Config::inst()->get(__CLASS__, 'max_length'))
+            || (strlen($session_data) > static::config()->get('max_length'))
             || !($crypto = $this->getCrypto($session_id))
         ) {
             return false;
@@ -173,7 +173,13 @@ class CookieStore extends BaseStore
 
         $params = session_get_cookie_params();
 
-        Cookie::force_expiry($this->cookie, $params['path'], $params['domain'], $params['secure'], $params['httponly']);
+        Cookie::force_expiry(
+            $this->cookie,
+            $params['path'],
+            $params['domain'],
+            $params['secure'],
+            $params['httponly']
+        );
     }
 
     public function gc($maxlifetime)

@@ -10,7 +10,7 @@ use SilverStripe\HybridSessions\Tests\Store\TestCookieStore;
 
 abstract class AbstractTest extends SapphireTest
 {
-    public function setUp()
+    protected function setUp()
     {
         parent::setUp();
 
@@ -30,7 +30,7 @@ abstract class AbstractTest extends SapphireTest
         }
     }
 
-    public function tearDown()
+    protected function tearDown()
     {
         Injector::unnest();
         DBDatetime::clear_mock_now();

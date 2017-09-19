@@ -8,10 +8,14 @@ use SilverStripe\HybridSessions\HybridSession;
 
 class HybridSessionMiddleware implements HTTPMiddleware
 {
-    public function process(HTTPRequest $request, callable $next)
+    public function process(HTTPRequest $request, callable $delegate)
     {
-        if (HybridSession::is_enabled()) {
-            session_write_close();
-        }
+        // @todo
+        //
+        // if (HybridSession::is_enabled()) {
+        //    session_write_close();
+        // }
+
+        return $delegate($request);
     }
 }
