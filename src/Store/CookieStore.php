@@ -170,7 +170,10 @@ class CookieStore extends BaseStore
     public function destroy($session_id)
     {
         $this->currentCookieData = null;
-        Cookie::force_expiry($this->cookie);
+
+        $params = session_get_cookie_params();
+
+        Cookie::force_expiry($this->cookie, $params['path'], $params['domain'], $params['secure'], $params['httponly']);
     }
 
     public function gc($maxlifetime)
