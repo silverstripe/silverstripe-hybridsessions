@@ -27,7 +27,7 @@ class DatabaseStore extends BaseStore
 
         // If we have a DB of the wrong type then complain
         if (!(DB::get_conn() instanceof MySQLDatabase)) {
-            throw new Exception('HybridSessionStore currently only works with MySQL databases');
+            throw new Exception('HybridSessions\Store\DatabaseStore currently only works with MySQL databases');
         }
 
         // Prevent freakout during dev/build

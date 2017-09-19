@@ -3,8 +3,9 @@
 namespace SilverStripe\HybridSessions\Store;
 
 use SilverStripe\Control\Cookie;
-use SilverStripe\HybridSessions\Crypto\Crypto;
+use SilverStripe\HybridSessions\Crypto\OpenSSLCrypto;
 use SilverStripe\Core\Config\Config;
+use SilverStripe\Core\Injector\Injector;
 
 /**
  * A session store which stores the session data in an encrypted & signed cookie.
@@ -89,7 +90,7 @@ class CookieStore extends BaseStore
         }
 
         if (!$this->crypto || $this->crypto->salt != $session_id) {
-            $this->crypto = new Crypto($key, $session_id);
+            $this->crypto = Injector::inst()->create(OpenSSLCrypto::class, $key, $session_id);
         }
 
         return $this->crypto;

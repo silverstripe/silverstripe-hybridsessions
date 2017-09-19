@@ -5,9 +5,9 @@ namespace SilverStripe\HybridSessions\Tests;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Core\TempFolder;
 use SilverStripe\HybridSessions\Tests\AbstractTest;
-use SilverStripe\HybridSessions\Store\SessionStore;
+use SilverStripe\HybridSessions\HybridSession;
 
-class SessionStoreTest extends AbstractTest
+class HybridSessionTest extends AbstractTest
 {
 
     /**
@@ -15,7 +15,7 @@ class SessionStoreTest extends AbstractTest
      */
     protected function getStore()
     {
-        $store = Injector::inst()->get(SessionStore::class);
+        $store = Injector::inst()->create(HybridSession::class);
         $store->setKey(uniqid());
         $store->open(TempFolder::getTempFolder(BASE_PATH).'/'.__CLASS__, 'SESSIONCOOKIE');
 

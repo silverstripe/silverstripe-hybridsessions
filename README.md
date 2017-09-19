@@ -12,7 +12,6 @@ multi-server issues like asset storage and databases).
 
 ## Requirements
 
- * The mcrypt PHP extension
  * MySQL database is the only supported DB store.
 
 ## Installation
@@ -27,7 +26,9 @@ in `mysite/_config.php`
 ```php
 // Ensure that you define a sufficiently indeterminable
 // value for SS_SESSION_KEY in your _ss_environment.php
-HybridSessionStore::init(SS_SESSION_KEY);
+use SilverStripe\HybridSessions\HybridSession;
+
+HybridSession::init(SS_SESSION_KEY);
 ```
 
 ## Security

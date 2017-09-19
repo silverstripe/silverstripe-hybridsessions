@@ -7,7 +7,6 @@ use SilverStripe\ORM\FieldType\DBDatetime;
 
 abstract class BaseStore implements SessionHandlerInterface
 {
-
     /**
      * Session secret key
      *

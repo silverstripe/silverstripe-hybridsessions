@@ -1,11 +1,11 @@
 <?php
 
-namespace SilverStripe\HybridSessions\Store;
+namespace SilverStripe\HybridSessions;
 
-use SilverStripe\HybridSessions\Store\Base;
+use SilverStripe\HybridSessions\Store\BaseStore;
 use SilverStripe\Core\Injector\Injector;
 
-class SessionStore extends DatabaseStore
+class HybridSession extends BaseStore
 {
 
     /**
@@ -51,8 +51,6 @@ class SessionStore extends DatabaseStore
             foreach ($this->handlers as $handler) {
                 $handler->open($save_path, $name);
             }
-        } else {
-            parent::open($save_path, $name);
         }
 
         return true;
@@ -64,8 +62,6 @@ class SessionStore extends DatabaseStore
             foreach ($this->handlers as $handler) {
                 $handler->close();
             }
-        } else {
-            parent::open($save_path, $name);
         }
 
         return true;
@@ -79,8 +75,6 @@ class SessionStore extends DatabaseStore
                     return $data;
                 }
             }
-        } else {
-            return parent::read($session_id);
         }
 
         return '';
@@ -94,10 +88,6 @@ class SessionStore extends DatabaseStore
                     return;
                 }
             }
-        } else {
-            parent::write($session_id, $session_data);
-
-            return;
         }
     }
 
@@ -107,8 +97,6 @@ class SessionStore extends DatabaseStore
             foreach ($this->handlers as $handler) {
                 $handler->destroy($session_id);
             }
-        } else {
-            parent::destroy($session_id);
         }
     }
 
@@ -118,8 +106,6 @@ class SessionStore extends DatabaseStore
             foreach ($this->handlers as $handler) {
                 $handler->gc($maxlifetime);
             }
-        } else {
-            parent::gc($maxlifetime);
         }
     }
 
@@ -134,14 +120,14 @@ class SessionStore extends DatabaseStore
 
         if (empty($key)) {
             user_error(
-                'SessionStore::init() was not given a $key. Disabling cookie-based storage',
+                'HybridSession::init() was not given a $key. Disabling cookie-based storage',
                 E_USER_WARNING
             );
         } else {
             $instance->setKey($key);
         }
 
-        register_sessionhandler($instance);
+        session_set_save_handler($instance, true);
 
         self::$enabled = true;
     }

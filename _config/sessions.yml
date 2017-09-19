@@ -1,16 +1,8 @@
 ---
-Name: sessions
----
-Injector:
-  RequestProcessor:
-    properties:
-      filters:
-        - '%$HybridSessionStore_RequestFilter'
----
 Name: sessionstores
 ---
-HybridSessionStore:
+SilverStripe\HybridSessions\HybridSession:
   dependencies:
     handlers:
-      - '%$HybridSessionStore_Cookie'
-      - '%$HybridSessionStore_Database'
+      - '%$\SilverStripe\HybridSessions\Store\CookieStore'
+      - '%$\SilverStripe\HybridSessions\Store\DatabaseStore'
