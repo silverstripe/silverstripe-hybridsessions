@@ -2,8 +2,9 @@
 
 namespace SilverStripe\HybridSessions;
 
-use SilverStripe\HybridSessions\Store\BaseStore;
+use SessionHandlerInterface;
 use SilverStripe\Core\Injector\Injector;
+use SilverStripe\HybridSessions\Store\BaseStore;
 
 class HybridSession extends BaseStore
 {

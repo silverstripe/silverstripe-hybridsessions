@@ -10,13 +10,14 @@ use SilverStripe\HybridSessions\Tests\Store\TestCookieStore;
 
 abstract class AbstractTest extends SapphireTest
 {
+    protected $usesDatabase = true;
+
     protected function setUp()
     {
         parent::setUp();
 
         TestCookieStore::$override_headers_sent = false;
 
-        Injector::nest();
         Injector::inst()->registerService(
             new TestCookieStore(),
             CookieStore::class
@@ -32,7 +33,6 @@ abstract class AbstractTest extends SapphireTest
 
     protected function tearDown()
     {
-        Injector::unnest();
         DBDatetime::clear_mock_now();
 
         parent::tearDown();
