@@ -7,9 +7,7 @@ SilverStripe\HybridSessions\HybridSession:
       - '%$\SilverStripe\HybridSessions\Store\CookieStore'
       - '%$\SilverStripe\HybridSessions\Store\DatabaseStore'
 SilverStripe\Core\Injector\Injector:
-  SilverStripe\Control\Director:
-    properties:
-      Middlewares:
-        HybridSessionsMiddleware: '%$SilverStripe\HybridSessions\Control\HybridSessionMiddleware'
+  SilverStripe\Control\Middleware\SessionMiddleware:
+    class: SilverStripe\HybridSessions\Control\HybridSessionMiddleware
   SilverStripe\HybridSessions\Crypto\CryptoHandler:
     class: SilverStripe\HybridSessions\Crypto\OpenSSLCrypto
