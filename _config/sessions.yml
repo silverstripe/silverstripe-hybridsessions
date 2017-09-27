@@ -1,5 +1,6 @@
 ---
 Name: sessionstores
+After: requestprocessors
 ---
 SilverStripe\HybridSessions\HybridSession:
   dependencies:

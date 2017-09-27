@@ -15,15 +15,18 @@ class HybridSessionMiddleware implements HTTPMiddleware
             $request->getSession()->init($request);
 
             // Generate output
-            return $delegate($request);
+            $response = $delegate($request);
         } finally {
-            // Save session data, even if there was an exception after the
-            // response has been returned.
-
+            // Save session data, even if there was an exception
             // Note that save() will start/resume the session if required.
             $request->getSession()->save($request);
 
-            session_write_close();
+            if (HybridSession::is_enabled()) {
+                // Close the session
+                session_write_close();
+            }
         }
+
+        return $response;
     }
 }
