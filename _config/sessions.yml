@@ -1,16 +1,14 @@
 ---
-Name: sessions
----
-Injector:
-  RequestProcessor:
-    properties:
-      filters:
-        - '%$HybridSessionStore_RequestFilter'
----
 Name: sessionstores
+After: requestprocessors
 ---
-HybridSessionStore:
+SilverStripe\HybridSessions\HybridSession:
   dependencies:
     handlers:
-      - '%$HybridSessionStore_Cookie'
-      - '%$HybridSessionStore_Database'
+      - '%$\SilverStripe\HybridSessions\Store\CookieStore'
+      - '%$\SilverStripe\HybridSessions\Store\DatabaseStore'
+SilverStripe\Core\Injector\Injector:
+  SilverStripe\Control\Middleware\SessionMiddleware:
+    class: SilverStripe\HybridSessions\Control\HybridSessionMiddleware
+  SilverStripe\HybridSessions\Crypto\CryptoHandler:
+    class: SilverStripe\HybridSessions\Crypto\OpenSSLCrypto

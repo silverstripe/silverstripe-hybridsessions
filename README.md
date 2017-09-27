@@ -1,6 +1,8 @@
 # Hybrid Sessions
 
-[![Build Status](https://travis-ci.org/silverstripe-labs/silverstripe-hybridsessions.svg?branch=master)](https://travis-ci.org/silverstripe-labs/silverstripe-hybridsessions)
+[![Build Status](https://travis-ci.org/silverstripe/silverstripe-hybridsessions.svg?branch=master)](https://travis-ci.org/silverstripe/silverstripe-hybridsessions)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/silverstripe/silverstripe-hybridsessions/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/silverstripe/silverstripe-hybridsessions/?branch=master)
+[![codecov](https://codecov.io/gh/silverstripe/silverstripe-hybridsessions/branch/master/graph/badge.svg)](https://codecov.io/gh/silverstripe/silverstripe-hybridsessions)
 
 ## Introduction
 
@@ -12,7 +14,6 @@ multi-server issues like asset storage and databases).
 
 ## Requirements
 
- * The mcrypt PHP extension
  * MySQL database is the only supported DB store.
 
 ## Installation
@@ -20,14 +21,15 @@ multi-server issues like asset storage and databases).
 * Install with composer using `composer require silverstripe/hybridsessions:*`
 * /dev/build?flush=all to setup the necessary tables
 * In order to initiate the session handler is is necessary to add a snippet of code to your
-  _config.php, along with a private key used to encrypt user cookies.
+  \_config.php, along with a private key used to encrypt user cookies.
 
 in `mysite/_config.php`
 
 ```php
-// Ensure that you define a sufficiently indeterminable
-// value for SS_SESSION_KEY in your _ss_environment.php
-HybridSessionStore::init(SS_SESSION_KEY);
+// Ensure that you define a sufficiently indeterminable value for SS_SESSION_KEY in your `.env`
+use SilverStripe\HybridSessions\HybridSession;
+
+HybridSession::init(SS_SESSION_KEY);
 ```
 
 ## Security
