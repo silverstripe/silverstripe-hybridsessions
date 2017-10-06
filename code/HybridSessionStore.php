@@ -71,7 +71,7 @@ class HybridSessionStore_Crypto {
 
 		$this->key = $key;
 		$this->salt = $salt;
-		$this->saltedkey = function_exists('hash_pbkdf2') ?
+		$this->saltedKey = function_exists('hash_pbkdf2') ?
 			hash_pbkdf2('sha256', $this->key, $this->salt, 1000, $this->keySize, true) :
 			$this->hash_pbkdf2('sha256', $this->key, $this->salt, 100, $this->keySize);
 	}
