@@ -2,20 +2,14 @@ language: php
 
 sudo: false
 
-php: 
-  - 5.3
-
-env:
-  - DB=MYSQL CORE_RELEASE=3.1
-
 matrix:
   include:
-    - php: 5.4
-      env: DB=MYSQL CORE_RELEASE=3.1
     - php: 5.5
-      env: DB=MYSQL CORE_RELEASE=3
+      env: DB=MYSQL CORE_RELEASE=3.5
     - php: 5.6
-      env: DB=MYSQL CORE_RELEASE=3.2
+      env: DB=MYSQL CORE_RELEASE=3.6
+    - php: 7.0
+      env: DB=MYSQL CORE_RELEASE=3
 
 before_script:
   - composer self-update || true
@@ -24,5 +18,5 @@ before_script:
   - php ~/travis-support/travis_setup.php --source `pwd` --target ~/builds/ss
   - cd ~/builds/ss
 
-script: 
+script:
   - vendor/bin/phpunit hybridsessions/tests

@@ -2,12 +2,13 @@
 
 abstract class HybridSessionAbstractTest extends SapphireTest {
 
+    protected $usesDatabase = true;
+
 	public function setUp() {
 		parent::setUp();
 
 		HybridSessionAbstractTest_TestCookieBackend::$override_headers_sent = false;
 
-		Injector::nest();
 		Injector::inst()->registerService(
 			new HybridSessionAbstractTest_TestCookieBackend(),
 			'HybridSessionStore_Cookie'
@@ -22,7 +23,6 @@ abstract class HybridSessionAbstractTest extends SapphireTest {
 	}
 
 	public function tearDown() {
-		Injector::unnest();
 		SS_Datetime::clear_mock_now();
 
 		parent::tearDown();

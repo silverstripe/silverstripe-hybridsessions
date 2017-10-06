@@ -73,6 +73,7 @@ class HybridSessionStore_Crypto {
 
 		$this->key = $key;
 		$this->salt = $salt;
+
 		$this->saltedKey = hash_pbkdf2('sha256', $this->key, $this->salt, 1000, $this->keySize, true);
 	}
 
