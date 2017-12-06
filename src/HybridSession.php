@@ -115,7 +115,7 @@ class HybridSession extends BaseStore
         if ($this->handlers) {
             foreach ($this->handlers as $handler) {
                 if ($handler->write($session_id, $session_data)) {
-                    return;
+                    return true;
                 }
             }
         }
@@ -128,6 +128,7 @@ class HybridSession extends BaseStore
                 $handler->destroy($session_id);
             }
         }
+        return true;
     }
 
     public function gc($maxlifetime)
