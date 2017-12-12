@@ -112,15 +112,14 @@ class HybridSession extends BaseStore
 
     public function write($session_id, $session_data)
     {
-        $result = false;
         if ($this->handlers) {
             foreach ($this->handlers as $handler) {
                 if ($handler->write($session_id, $session_data)) {
-                    $result = true;
+                    return true;
                 }
             }
         }
-        return $result;
+        return false;
     }
 
     public function destroy($session_id)
