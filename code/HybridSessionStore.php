@@ -47,8 +47,6 @@ else {
 class HybridSessionStore_Crypto {
 
 	private $key;
-	private $ivSize;
-	private $keySize;
 
 	public $salt;
 	private $saltedKey;
@@ -68,13 +66,9 @@ class HybridSessionStore_Crypto {
 	 * a great salt, so no need to generate & handle another one.
 	 */
 	public function __construct($key, $salt) {
-		$this->ivSize = mcrypt_get_iv_size(MCRYPT_RIJNDAEL_256, MCRYPT_MODE_CBC);
-		$this->keySize = mcrypt_get_key_size(MCRYPT_RIJNDAEL_256, MCRYPT_MODE_CBC);
-
 		$this->key = $key;
 		$this->salt = $salt;
-
-		$this->saltedKey = hash_pbkdf2('sha256', $this->key, $this->salt, 1000, $this->keySize, true);
+		$this->saltedKey = hash_pbkdf2('sha256', $this->key, $this->salt, 1000, 0, true);
 	}
 
 	/**
@@ -84,19 +78,14 @@ class HybridSessionStore_Crypto {
 	 * @return string - The encrypted-and-signed message as base64 ASCII.
 	 */
 	public function encrypt($cleartext) {
-		$iv = mcrypt_create_iv($this->ivSize, MCRYPT_DEV_URANDOM);
+		$cipher = "AES-256-CBC";
+		$ivlen = openssl_cipher_iv_length($cipher);
+		$iv = openssl_random_pseudo_bytes($ivlen);
+		$ciphertext_raw = openssl_encrypt($cleartext, $cipher, $this->saltedKey, OPENSSL_RAW_DATA, $iv);
+		$hmac = hash_hmac('sha256', $ciphertext_raw, $this->saltedKey, true);
+		$ciphertext = base64_encode($iv.$hmac.$ciphertext_raw);
 
-		$enc = mcrypt_encrypt(
-			MCRYPT_RIJNDAEL_256,
-			$this->saltedKey,
-			$cleartext,
-			MCRYPT_MODE_CBC,
-			$iv
-		);
-
-		$hash = hash_hmac('sha256', $enc, $this->saltedKey);
-
-		return base64_encode($iv.$hash.$enc);
+		return base64_encode($iv.$hmac.$ciphertext_raw);
 	}
 
 	/**
@@ -106,24 +95,19 @@ class HybridSessionStore_Crypto {
 	 * @return bool|string - The decrypted cleartext or false if signature failed
 	 */
 	public function decrypt($data) {
-		$data = base64_decode($data);
+		$c = base64_decode($data);
+		$cipher = "AES-256-CBC";
+		$ivlen = openssl_cipher_iv_length($cipher);
+		$iv = substr($c, 0, $ivlen);
+		$hmac = substr($c, $ivlen, $sha2len = 32);
+		$ciphertext_raw = substr($c, $ivlen+$sha2len);
+		$cleartext = openssl_decrypt($ciphertext_raw, $cipher, $this->saltedKey, OPENSSL_RAW_DATA, $iv);
+		$calcmac = hash_hmac('sha256', $ciphertext_raw, $this->saltedKey, true);
 
-		$iv   = substr($data, 0, $this->ivSize);
-		$hash = substr($data, $this->ivSize, 64);
-		$enc  = substr($data, $this->ivSize + 64);
+		if (hash_equals($hmac, $calcmac)) {
+			return $cleartext;
+		}
 
-		$cleartext = rtrim(mcrypt_decrypt(
-			MCRYPT_RIJNDAEL_256,
-			$this->saltedKey,
-			$enc,
-			MCRYPT_MODE_CBC,
-			$iv
-		), "\x00");
-
-		// Needs to be after decrypt so it always runs, to avoid timing attack
-		$gen_hash = hash_hmac('sha256', $enc, $this->saltedKey);
-
-		if ($gen_hash == $hash) return $cleartext;
 		return false;
 	}
 }

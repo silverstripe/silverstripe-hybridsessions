@@ -12,7 +12,7 @@ multi-server issues like asset storage and databases).
 
 ## Requirements
 
- * The mcrypt PHP extension
+ * The openssl PHP extension
  * MySQL database is the only supported DB store.
 
 ## Installation
