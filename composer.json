@@ -18,6 +18,10 @@
 	"require-dev": {
 		"phpunit/PHPUnit": "~3.7@stable"
 	},
-	"extra": [],
+	"extra": {
+		"branch-alias": {
+			"1.x-dev": "1.2.x-dev"
+		}
+	},
 	"minimum-stability": "dev"
 }
