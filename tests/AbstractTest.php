@@ -24,11 +24,6 @@ abstract class AbstractTest extends SapphireTest
         );
 
         DBDatetime::set_mock_now('2010-03-15 12:00:00');
-
-        if (get_class() === get_class($this)) {
-            $this->markTestSkipped("Skipping abstract test");
-            $this->skipTest = true;
-        }
     }
 
     protected function tearDown()
