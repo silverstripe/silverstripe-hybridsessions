@@ -7,8 +7,6 @@ use SilverStripe\Dev\TestOnly;
 
 class TestCookieStore extends CookieStore implements TestOnly
 {
-
-
     /**
      * Override value of 'headers_sent' but only if running tests.
      *

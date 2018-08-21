@@ -45,7 +45,7 @@ class HybridSession extends BaseStore
     {
         parent::setKey($key);
 
-        foreach ($this->handlers as $handler) {
+        foreach ($this->getHandlers() as $handler) {
             $handler->setKey($key);
         }
 
@@ -57,7 +57,7 @@ class HybridSession extends BaseStore
      */
     public function getHandlers()
     {
-        return $this->handlers;
+        return $this->handlers ?: [];
     }
 
     /**
@@ -68,10 +68,8 @@ class HybridSession extends BaseStore
      */
     public function open($save_path, $name)
     {
-        if ($this->handlers) {
-            foreach ($this->handlers as $handler) {
-                $handler->open($save_path, $name);
-            }
+        foreach ($this->getHandlers() as $handler) {
+            $handler->open($save_path, $name);
         }
 
         return true;
@@ -82,10 +80,8 @@ class HybridSession extends BaseStore
      */
     public function close()
     {
-        if ($this->handlers) {
-            foreach ($this->handlers as $handler) {
-                $handler->close();
-            }
+        foreach ($this->getHandlers() as $handler) {
+            $handler->close();
         }
 
         return true;
@@ -98,46 +94,39 @@ class HybridSession extends BaseStore
      */
     public function read($session_id)
     {
-        if ($this->handlers) {
-            foreach ($this->handlers as $handler) {
-                if ($data = $handler->read($session_id)) {
-                    return $data;
-                }
+        foreach ($this->getHandlers() as $handler) {
+            if ($data = $handler->read($session_id)) {
+                return $data;
             }
         }
 
         return '';
     }
 
-
     public function write($session_id, $session_data)
     {
-        if ($this->handlers) {
-            foreach ($this->handlers as $handler) {
-                if ($handler->write($session_id, $session_data)) {
-                    return true;
-                }
+        foreach ($this->getHandlers() as $handler) {
+            if ($handler->write($session_id, $session_data)) {
+                return true;
             }
         }
+
         return false;
     }
 
     public function destroy($session_id)
     {
-        if ($this->handlers) {
-            foreach ($this->handlers as $handler) {
-                $handler->destroy($session_id);
-            }
+        foreach ($this->getHandlers() as $handler) {
+            $handler->destroy($session_id);
         }
+
         return true;
     }
 
     public function gc($maxlifetime)
     {
-        if ($this->handlers) {
-            foreach ($this->handlers as $handler) {
-                $handler->gc($maxlifetime);
-            }
+        foreach ($this->getHandlers() as $handler) {
+            $handler->gc($maxlifetime);
         }
     }
 

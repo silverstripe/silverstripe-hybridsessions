@@ -4,7 +4,6 @@ namespace SilverStripe\HybridSessions\Tests;
 
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Core\TempFolder;
-use SilverStripe\HybridSessions\Tests\AbstractTest;
 use SilverStripe\HybridSessions\Store\CookieStore;
 use SilverStripe\HybridSessions\Tests\Store\TestCookieStore;
 
