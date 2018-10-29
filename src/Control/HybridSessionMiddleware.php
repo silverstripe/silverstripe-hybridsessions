@@ -11,8 +11,10 @@ class HybridSessionMiddleware implements HTTPMiddleware
     public function process(HTTPRequest $request, callable $delegate)
     {
         try {
-            // Start session and execute
-            $request->getSession()->init($request);
+            if (HybridSession::is_enabled()) {
+                // Start session and execute
+                $request->getSession()->init($request);
+            }
 
             // Generate output
             $response = $delegate($request);
