@@ -463,7 +463,7 @@ class HybridSessionStore extends HybridSessionStore_Base {
 
 	public function write($session_id, $session_data) {
 		foreach ($this->handlers as $handler) {
-			if ($handler->write($session_id, $session_data)) return;
+			if ($handler->write($session_id, $session_data)) return true;
 		}
 	}
 
@@ -471,6 +471,7 @@ class HybridSessionStore extends HybridSessionStore_Base {
 		foreach ($this->handlers as $handler) {
 			$handler->destroy($session_id);
 		}
+		return true;
 	}
 
 	public function gc($maxlifetime) {
