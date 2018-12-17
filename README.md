@@ -40,6 +40,29 @@ exception is that cookie sessions are vulnerable to replay attacks. This is only
 shouldn't in the session anyway, but it's important you understand the issue. Ruby on rails has good documentation of
 the issue at http://guides.rubyonrails.org/security.html#replay-attacks-for-cookiestore-sessions
 
+### Crypto handlers
+
+This module ships with two default cryptographic handlers:
+
+* `OpenSSLCrypto`: uses the OpenSSL library (default).
+* `McryptCrypto`: uses the mcrypt library. Please note that this is 
+  [deprecated, and removed from PHP 7.2](https://secure.php.net/releases/7_2_0.php). We advise against its use.
+
+You can also implement your own cryptographic handler by creating a class that implements the
+`SilverStripe\HybridSessions\Crypto\CryptoHandler` interface.
+
+To configure the active handler, add YAML configuration to your project:
+
+```yaml
+---
+Name: myappsessionstores
+After: sessionstores
+---
+SilverStripe\HybridSessions\HybridSession:
+  SilverStripe\HybridSessions\Crypto\CryptoHandler:
+    class: MyCustomCryptoHandler
+```
+
 ## Caveats
 
 This module is not fully compatible with the
