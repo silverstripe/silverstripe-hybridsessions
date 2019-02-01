@@ -148,7 +148,7 @@ class CookieStore extends BaseStore
                     $params['domain'],
                     $params['secure'],
                     $params['httponly']
-                    );
+                );
             }
 
             return false;
