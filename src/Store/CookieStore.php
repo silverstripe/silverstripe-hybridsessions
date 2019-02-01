@@ -138,7 +138,7 @@ class CookieStore extends BaseStore
             || !($crypto = $this->getCrypto($session_id))
         ) {
             if (strlen($session_data) > static::config()->get('max_length')) {
-                unset($this->currentCookieData);
+                $this->currentCookieData = null;
             }
 
             return false;
