@@ -137,8 +137,18 @@ class CookieStore extends BaseStore
             || (strlen($session_data) > static::config()->get('max_length'))
             || !($crypto = $this->getCrypto($session_id))
         ) {
-            if (strlen($session_data) > static::config()->get('max_length')) {
+            if ($this->canWrite() && strlen($session_data) > static::config()->get('max_length')) {
                 $this->currentCookieData = null;
+                $params = session_get_cookie_params();
+                Cookie::set(
+                    $this->cookie,
+                    '',
+                    0,
+                    $params['path'],
+                    $params['domain'],
+                    $params['secure'],
+                    $params['httponly']
+                    );
             }
 
             return false;
