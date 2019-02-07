@@ -132,11 +132,27 @@ class CookieStore extends BaseStore
 
     public function write($session_id, $session_data)
     {
+        $canWrite = $this->canWrite();
+        $isExceedingCookieLimit = (strlen($session_data) > static::config()->get('max_length'));
+        $crypto = $this->getCrypto($session_id);
+
         // Check ability to safely encrypt and write content
-        if (!$this->canWrite()
-            || (strlen($session_data) > static::config()->get('max_length'))
-            || !($crypto = $this->getCrypto($session_id))
-        ) {
+        if (!$canWrite || $isExceedingCookieLimit || !$crypto) {
+            if ($canWrite && $isExceedingCookieLimit) {
+                $params = session_get_cookie_params();
+                // Clear stored cookie value and cookie when length exceeds the set limit
+                $this->currentCookieData = null;
+                Cookie::set(
+                    $this->cookie,
+                    '',
+                    0,
+                    $params['path'],
+                    $params['domain'],
+                    $params['secure'],
+                    $params['httponly']
+                );
+            }
+
             return false;
         }
 
