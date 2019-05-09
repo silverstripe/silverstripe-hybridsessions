@@ -1,4 +1,7 @@
 en:
-  SilverStripe\HybridSessions\Model\HybridSessionDataObject:
+  SilverStripe\HybridSessions\HybridSessionDataObject:
     PLURALNAME: 'Hybrid Session Data Objects'
+    PLURALS:
+      one: 'A Hybrid Session Data Object'
+      other: '{count} Hybrid Session Data Objects'
     SINGULARNAME: 'Hybrid Session Data Object'
