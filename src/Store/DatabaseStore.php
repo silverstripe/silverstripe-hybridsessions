@@ -7,6 +7,7 @@ use SilverStripe\ORM\Connect\MySQLDatabase;
 use SilverStripe\Core\ClassInfo;
 use SilverStripe\Core\Convert;
 use SilverStripe\HybridSessions\Store\BaseStore;
+use SilverStripe\HybridSessions\Store\DatabaseStore\DataCodec;
 use Exception;
 
 class DatabaseStore extends BaseStore
@@ -61,7 +62,8 @@ class DatabaseStore extends BaseStore
 
         if ($result && $result->numRecords()) {
             $data = $result->first();
-            return $data['Data'];
+            $decoded = DataCodec::decode($data['Data']);
+            return is_null($decoded) ? $data['Data'] : $decoded;
         }
     }
 
@@ -79,7 +81,7 @@ class DatabaseStore extends BaseStore
             ON DUPLICATE KEY UPDATE "Expiry" = %2$u, "Data" = \'%3$s\'',
             Convert::raw2sql($session_id),
             $expiry,
-            Convert::raw2sql($session_data)
+            Convert::raw2sql(DataCodec::encode($session_data))
         ));
 
         return true;

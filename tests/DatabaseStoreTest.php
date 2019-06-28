@@ -6,6 +6,7 @@ use SilverStripe\ORM\DB;
 use SilverStripe\ORM\Connect\MySQLDatabase;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\HybridSessions\Store\DatabaseStore;
+use SilverStripe\HybridSessions\Store\DatabaseStore\DataCodec;
 
 class DatabaseStoreTest extends AbstractTest
 {
@@ -24,5 +25,14 @@ class DatabaseStoreTest extends AbstractTest
         $store->setKey(uniqid());
 
         return $store;
+    }
+
+    public function testDataCodecIntegrity()
+    {
+        for ($i=0; $i<1000; ++$i) {
+            $data = random_bytes(1024 * 4);
+
+            $this->assertEquals($data, DataCodec::decode(DataCodec::encode($data)));
+        }
     }
 }
