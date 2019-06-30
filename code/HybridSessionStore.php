@@ -365,7 +365,8 @@ class HybridSessionStore_Database extends HybridSessionStore_Base {
 
 		if ($result && $result->numRecords()) {
 			$data = $result->first();
-			return $data['Data'];
+            $decoded = $this->binaryDataJsonDecode($data['Data']);
+            return is_null($decoded) ? $data['Data'] : $decoded;
 		}
 	}
 
@@ -379,11 +380,51 @@ class HybridSessionStore_Database extends HybridSessionStore_Base {
 			ON DUPLICATE KEY UPDATE "Expiry" = %2$u, "Data" = \'%3$s\'',
 			Convert::raw2sql($session_id),
 			$expiry,
-			Convert::raw2sql($session_data)
+            Convert::raw2sql($this->binaryDataJsonEncode($session_data))
 		));
 
 		return true;
 	}
+
+    /**
+     * Encode binary data into ASCII string (a subset of UTF-8)
+     *
+     * Silverstripe <= 4.4 does not have a binary db field implementation, so we have to store
+     * binary data as text
+     *
+     * @param string $data This is a binary blob
+     *
+     * @return string
+     */
+    private function binaryDataJsonEncode($data)
+    {
+        return json_encode([
+            self::class,
+            base64_encode($data)
+        ]);
+    }
+
+    /**
+     * Decode ASCII string into original binary data (a php string)
+     *
+     * Silverstripe <= 4.4 does not have a binary db field implementation, so we have to store
+     * binary data as text
+     *
+     * @param string $text
+     *
+     * @param null|string
+     */
+    private function binaryDataJsonDecode($text)
+    {
+        $struct = json_decode($text, true, 2);
+        if (!is_array($struct) || count($struct) !== 2) {
+            return null;
+        }
+        if (!isset($struct[0]) || !isset($struct[1]) || $struct[0] !== self::class) {
+            return null;
+        }
+        return base64_decode($struct[1]);
+    }
 
 	public function destroy($session_id) {
 		// NOP
