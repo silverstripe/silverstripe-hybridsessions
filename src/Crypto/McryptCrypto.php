@@ -5,6 +5,7 @@ namespace SilverStripe\HybridSessions\Crypto;
 /**
  * Some cryptography used for Session cookie encryption. Requires the mcrypt extension.
  *
+ * @deprecated 2.2.0 The PHP mcrypt library is deprecated. Please use OpenSSLCrypto instead.
  */
 class McryptCrypto implements CryptoHandler
 {
