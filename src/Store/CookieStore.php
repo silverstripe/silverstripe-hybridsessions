@@ -58,7 +58,7 @@ class CookieStore extends BaseStore
 
     public function open($save_path, $name)
     {
-        $this->cookie = $name.'_2';
+        $this->cookie = $name . '_2';
 
         // Read the incoming value, then clear the cookie - we might not be able
         // to do so later if write() is called after headers are sent
