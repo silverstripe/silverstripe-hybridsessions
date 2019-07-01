@@ -78,7 +78,7 @@ class McryptCrypto implements CryptoHandler
 
         $hash = hash_hmac('sha256', $enc, $this->saltedKey);
 
-        return base64_encode($iv.$hash.$enc);
+        return base64_encode($iv . $hash . $enc);
     }
 
     /**

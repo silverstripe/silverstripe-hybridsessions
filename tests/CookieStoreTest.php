@@ -13,7 +13,7 @@ class CookieStoreTest extends AbstractTest
     {
         $store = Injector::inst()->get(CookieStore::class);
         $store->setKey(uniqid());
-        $store->open(TempFolder::getTempFolder(BASE_PATH).'/'.__CLASS__, 'SESSIONCOOKIE');
+        $store->open(TempFolder::getTempFolder(BASE_PATH) . '/' . __CLASS__, 'SESSIONCOOKIE');
 
         return $store;
     }
