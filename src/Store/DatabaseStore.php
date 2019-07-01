@@ -61,7 +61,7 @@ class DatabaseStore extends BaseStore
 
         if ($result && $result->numRecords()) {
             $data = $result->first();
-            $decoded = $this->binaryDataJsonDecode($data['Data']);
+            $decoded = static::binaryDataJsonDecode($data['Data']);
             return is_null($decoded) ? $data['Data'] : $decoded;
         }
     }
@@ -80,7 +80,7 @@ class DatabaseStore extends BaseStore
             ON DUPLICATE KEY UPDATE "Expiry" = %2$u, "Data" = \'%3$s\'',
             Convert::raw2sql($session_id),
             $expiry,
-            Convert::raw2sql($this->binaryDataJsonEncode($session_data))
+            Convert::raw2sql(static::binaryDataJsonEncode($session_data))
         ));
 
         return true;
@@ -113,7 +113,7 @@ class DatabaseStore extends BaseStore
     *
     * @return string
     */
-    private function binaryDataJsonEncode($data)
+    public static function binaryDataJsonEncode($data)
     {
         return json_encode([
             self::class,
@@ -131,7 +131,7 @@ class DatabaseStore extends BaseStore
      *
      * @param null|string
      */
-    private function binaryDataJsonDecode($text)
+    public static function binaryDataJsonDecode($text)
     {
         $struct = json_decode($text, true, 2);
 

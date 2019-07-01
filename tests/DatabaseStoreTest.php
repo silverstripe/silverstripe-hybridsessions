@@ -25,4 +25,13 @@ class DatabaseStoreTest extends AbstractTest
 
         return $store;
     }
+
+    public function testDataCodecIntegrity()
+    {
+        for ($i = 0; $i < 1000; ++$i) {
+            $data = random_bytes(1024 * 4);
+
+            $this->assertEquals($data, DatabaseStore::binaryDataJsonDecode(DatabaseStore::binaryDataJsonEncode($data)));
+        }
+    }
 }
