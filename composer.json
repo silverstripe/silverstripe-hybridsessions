@@ -11,17 +11,12 @@
 		}
 	],
 	"require": {
-		"ext-mcrypt": "*",
-		"assertchris/hash-compat": "~1.0",
+		"ext-openssl": "*",
 		"silverstripe/framework": "~3.1"
 	},
 	"require-dev": {
-		"phpunit/PHPUnit": "~3.7@stable"
+		"phpunit/phpunit": "^5.7"
 	},
-	"extra": {
-		"branch-alias": {
-			"1.x-dev": "1.2.x-dev"
-		}
-	},
+	"extra": [],
 	"minimum-stability": "dev"
 }
