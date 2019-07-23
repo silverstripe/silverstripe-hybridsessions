@@ -57,7 +57,7 @@ if(!function_exists('hash_equals')) {
 }
 /**
  * Class HybridSessionStore_Crypto
- * Some cryptography used for Session cookie encryption. Requires the mcrypt extension.
+ * Some cryptography used for Session cookie encryption. Requires the OpenSSL PHP extension.
  *
  */
 class HybridSessionStore_Crypto {
