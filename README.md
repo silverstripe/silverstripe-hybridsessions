@@ -12,7 +12,7 @@ multi-server issues like asset storage and databases).
 
 ## Requirements
 
- * The openssl PHP extension
+ * The openssl PHP extension. If you want to use mcrypt instead, use hybridsessions ~1.1.0.
  * MySQL database is the only supported DB store.
 
 ## Installation
