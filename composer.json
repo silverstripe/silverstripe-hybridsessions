@@ -22,11 +22,6 @@
         "squizlabs/php_codesniffer": "^3.0",
         "silverstripe/versioned": "^1"
     },
-    "extra": {
-        "branch-alias": {
-            "dev-master": "2.x-dev"
-        }
-    },
     "autoload": {
         "psr-4": {
             "SilverStripe\\HybridSessions\\": "src/",
