@@ -99,9 +99,12 @@ class CookieStore extends BaseStore
     public function read($session_id)
     {
         // Check ability to safely decrypt content
-        if (!$this->currentCookieData
-            || !($crypto = $this->getCrypto($session_id))
-        ) {
+        if (!$this->currentCookieData) {
+            return;
+        }
+
+        $crypto = $this->getCrypto($session_id);
+        if (!$crypto) {
             return;
         }
 
