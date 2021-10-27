@@ -19,7 +19,7 @@ class HybridSessionTest extends SapphireTest
      */
     protected $instance;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
