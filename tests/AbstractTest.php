@@ -12,7 +12,7 @@ abstract class AbstractTest extends SapphireTest
 {
     protected $usesDatabase = true;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -26,7 +26,7 @@ abstract class AbstractTest extends SapphireTest
         DBDatetime::set_mock_now('2010-03-15 12:00:00');
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         DBDatetime::clear_mock_now();
 

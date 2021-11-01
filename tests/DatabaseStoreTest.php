@@ -9,7 +9,7 @@ use SilverStripe\HybridSessions\Store\DatabaseStore;
 
 class DatabaseStoreTest extends AbstractTest
 {
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
