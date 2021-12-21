@@ -4,7 +4,6 @@ namespace SilverStripe\HybridSessions\Crypto;
 
 interface CryptoHandler
 {
-
     /**
      * @param string $data
      *

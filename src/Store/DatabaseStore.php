@@ -11,7 +11,6 @@ use Exception;
 
 class DatabaseStore extends BaseStore
 {
-
     /**
      * Determine if the DB is ready to use.
      *

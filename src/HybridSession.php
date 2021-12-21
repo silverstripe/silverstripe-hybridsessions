@@ -8,7 +8,6 @@ use SilverStripe\HybridSessions\Store\BaseStore;
 
 class HybridSession extends BaseStore
 {
-
     /**
      * List of session handlers
      *
