@@ -21,7 +21,6 @@ use SilverStripe\Core\Injector\Injector;
  */
 class CookieStore extends BaseStore
 {
-
     /**
      * Maximum length of a cookie value in characters
      *
