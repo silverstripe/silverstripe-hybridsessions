@@ -10,7 +10,7 @@
 Adds a session handler that tries storing the session in an encrypted cookie when possible, and if not (
 because the session is too large, or headers have already been set) stores it in the database.
 
-This allows using SilverStripe on multiple servers without sticky sessions (as long as you solve other
+This allows using Silverstripe on multiple servers without sticky sessions (as long as you solve other
 multi-server issues like asset storage and databases).
 
 ## Requirements
