@@ -8,9 +8,21 @@ use SilverStripe\Core\ClassInfo;
 use SilverStripe\Core\Convert;
 use SilverStripe\HybridSessions\Store\BaseStore;
 use Exception;
+use SilverStripe\HybridSessions\HybridSessionDataObject;
 
 class DatabaseStore extends BaseStore
 {
+    /**
+     * Hashing algorithm used to encrypt $session_id (PHPSESSID)
+     * Ensure that HybridSessionDataObject.SessionID is wide enough to accomodate the hash
+     */
+    private const HASH_ALGO = 'sha256';
+
+    /**
+     * @var ?bool
+     */
+    private $hashAlgoAvailable = null;
+
     /**
      * Determine if the DB is ready to use.
      *
@@ -55,7 +67,7 @@ class DatabaseStore extends BaseStore
         $query = sprintf(
             'SELECT "Data" FROM "HybridSessionDataObject"
             WHERE "SessionID" = \'%s\' AND "Expiry" >= %s',
-            Convert::raw2sql($session_id),
+            Convert::raw2sql($this->encryptSessionID($session_id)),
             $this->getNow()
         );
 
@@ -81,7 +93,7 @@ class DatabaseStore extends BaseStore
             'INSERT INTO "HybridSessionDataObject" ("SessionID", "Expiry", "Data")
             VALUES (\'%1$s\', %2$u, \'%3$s\')
             ON DUPLICATE KEY UPDATE "Expiry" = %2$u, "Data" = \'%3$s\'',
-            Convert::raw2sql($session_id),
+            Convert::raw2sql($this->encryptSessionID($session_id)),
             $expiry,
             Convert::raw2sql(static::binaryDataJsonEncode($session_data))
         ));
@@ -92,7 +104,15 @@ class DatabaseStore extends BaseStore
     #[\ReturnTypeWillChange]
     public function destroy($session_id)
     {
-        // NOP
+        if (!$this->isDatabaseReady()) {
+            return false;
+        }
+        DB::query(sprintf(
+            'DELETE FROM "HybridSessionDataObject"
+            WHERE "SessionID" = \'%s\'',
+            Convert::raw2sql($this->encryptSessionID($session_id))
+        ));
+        return true;
     }
 
     #[\ReturnTypeWillChange]
@@ -149,5 +169,13 @@ class DatabaseStore extends BaseStore
         }
 
         return base64_decode($struct[1] ?? '');
+    }
+
+    private function encryptSessionID(string $sessionID): string
+    {
+        if (is_null($this->hashAlgoAvailable)) {
+            $this->hashAlgoAvailable = in_array(self::HASH_ALGO, hash_algos());
+        }
+        return $this->hashAlgoAvailable ? hash(self::HASH_ALGO, $sessionID) : $sessionID;
     }
 }
