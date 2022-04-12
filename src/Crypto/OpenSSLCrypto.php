@@ -48,7 +48,7 @@ class OpenSSLCrypto implements CryptoHandler
     {
         $this->key = $key;
         $this->salt = $salt;
-        $this->saltedKey = hash_pbkdf2('sha256', $this->key, $this->salt, 1000, 0, true);
+        $this->saltedKey = hash_pbkdf2('sha256', $this->key ?? '', $this->salt ?? '', 1000, 0, true);
     }
 
     /**
@@ -60,10 +60,16 @@ class OpenSSLCrypto implements CryptoHandler
     public function encrypt($cleartext)
     {
         $cipher = "AES-256-CBC";
-        $ivlen = openssl_cipher_iv_length($cipher);
-        $iv = openssl_random_pseudo_bytes($ivlen);
-        $ciphertext_raw = openssl_encrypt($cleartext, $cipher, $this->saltedKey, $options = OPENSSL_RAW_DATA, $iv);
-        $hmac = hash_hmac('sha256', $ciphertext_raw, $this->saltedKey, $as_binary = true);
+        $ivlen = openssl_cipher_iv_length($cipher ?? '');
+        $iv = openssl_random_pseudo_bytes($ivlen ?? 0);
+        $ciphertext_raw = openssl_encrypt(
+            $cleartext ?? '',
+            $cipher ?? '',
+            $this->saltedKey ?? '',
+            $options = OPENSSL_RAW_DATA,
+            $iv ?? ''
+        );
+        $hmac = hash_hmac('sha256', $ciphertext_raw ?? '', $this->saltedKey ?? '', $as_binary = true);
         $ciphertext = base64_encode($iv . $hmac . $ciphertext_raw);
 
         return base64_encode($iv . $hmac . $ciphertext_raw);
@@ -79,16 +85,22 @@ class OpenSSLCrypto implements CryptoHandler
      */
     public function decrypt($data)
     {
-        $c = base64_decode($data);
+        $c = base64_decode($data ?? '');
         $cipher = "AES-256-CBC";
-        $ivlen = openssl_cipher_iv_length($cipher);
-        $iv = substr($c, 0, $ivlen);
-        $hmac = substr($c, $ivlen, $sha2len = 32);
-        $ciphertext_raw = substr($c, $ivlen + $sha2len);
-        $cleartext = openssl_decrypt($ciphertext_raw, $cipher, $this->saltedKey, $options = OPENSSL_RAW_DATA, $iv);
-        $calcmac = hash_hmac('sha256', $ciphertext_raw, $this->saltedKey, $as_binary = true);
+        $ivlen = openssl_cipher_iv_length($cipher ?? '');
+        $iv = substr($c ?? '', 0, $ivlen);
+        $hmac = substr($c ?? '', $ivlen ?? 0, $sha2len = 32);
+        $ciphertext_raw = substr($c ?? '', $ivlen + $sha2len);
+        $cleartext = openssl_decrypt(
+            $ciphertext_raw ?? '',
+            $cipher ?? '',
+            $this->saltedKey ?? '',
+            $options = OPENSSL_RAW_DATA,
+            $iv ?? ''
+        );
+        $calcmac = hash_hmac('sha256', $ciphertext_raw ?? '', $this->saltedKey ?? '', $as_binary = true);
 
-        if (hash_equals($hmac, $calcmac)) {
+        if (hash_equals($hmac ?? '', $calcmac ?? '')) {
             return $cleartext;
         }
 

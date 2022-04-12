@@ -55,6 +55,7 @@ class CookieStore extends BaseStore
      */
     protected $currentCookieData;
 
+    #[\ReturnTypeWillChange]
     public function open($save_path, $name)
     {
         $this->cookie = $name . '_2';
@@ -70,6 +71,7 @@ class CookieStore extends BaseStore
         }
     }
 
+    #[\ReturnTypeWillChange]
     public function close()
     {
     }
@@ -95,6 +97,7 @@ class CookieStore extends BaseStore
         return $this->crypto;
     }
 
+    #[\ReturnTypeWillChange]
     public function read($session_id)
     {
         // Check ability to safely decrypt content
@@ -111,8 +114,8 @@ class CookieStore extends BaseStore
 
         // Verify expiration
         if ($cookieData) {
-            $expiry = (int)substr($cookieData, 0, 10);
-            $data = substr($cookieData, 10);
+            $expiry = (int)substr($cookieData ?? '', 0, 10);
+            $data = substr($cookieData ?? '', 10);
 
             if ($expiry > $this->getNow()) {
                 return $data;
@@ -130,10 +133,11 @@ class CookieStore extends BaseStore
         return !headers_sent();
     }
 
+    #[\ReturnTypeWillChange]
     public function write($session_id, $session_data)
     {
         $canWrite = $this->canWrite();
-        $isExceedingCookieLimit = (strlen($session_data) > static::config()->get('max_length'));
+        $isExceedingCookieLimit = (strlen($session_data ?? '') > static::config()->get('max_length'));
         $crypto = $this->getCrypto($session_id);
 
         // Check ability to safely encrypt and write content
@@ -183,6 +187,7 @@ class CookieStore extends BaseStore
         return true;
     }
 
+    #[\ReturnTypeWillChange]
     public function destroy($session_id)
     {
         $this->currentCookieData = null;
@@ -198,6 +203,7 @@ class CookieStore extends BaseStore
         );
     }
 
+    #[\ReturnTypeWillChange]
     public function gc($maxlifetime)
     {
         // NOP

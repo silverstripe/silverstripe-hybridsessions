@@ -58,7 +58,7 @@ class CookieStoreTest extends AbstractTest
         );
         $store->write($session, serialize($data1));
         $result = $store->read($session);
-        $this->assertEquals($data1, unserialize($result));
+        $this->assertEquals($data1, unserialize($result ?? ''));
 
         // Since we have read the data into the result, the application could modify this content
         // and be unable to write it back due to headers being sent. We should thus assume
