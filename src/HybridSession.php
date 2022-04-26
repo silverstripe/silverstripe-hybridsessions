@@ -65,6 +65,7 @@ class HybridSession extends BaseStore
      *
      * @return bool
      */
+    #[\ReturnTypeWillChange]
     public function open($save_path, $name)
     {
         foreach ($this->getHandlers() as $handler) {
@@ -77,6 +78,7 @@ class HybridSession extends BaseStore
     /**
      * @return bool
      */
+    #[\ReturnTypeWillChange]
     public function close()
     {
         foreach ($this->getHandlers() as $handler) {
@@ -91,6 +93,7 @@ class HybridSession extends BaseStore
      *
      * @return string
      */
+    #[\ReturnTypeWillChange]
     public function read($session_id)
     {
         foreach ($this->getHandlers() as $handler) {
@@ -102,6 +105,7 @@ class HybridSession extends BaseStore
         return '';
     }
 
+    #[\ReturnTypeWillChange]
     public function write($session_id, $session_data)
     {
         foreach ($this->getHandlers() as $handler) {
@@ -113,6 +117,7 @@ class HybridSession extends BaseStore
         return false;
     }
 
+    #[\ReturnTypeWillChange]
     public function destroy($session_id)
     {
         foreach ($this->getHandlers() as $handler) {
@@ -122,6 +127,7 @@ class HybridSession extends BaseStore
         return true;
     }
 
+    #[\ReturnTypeWillChange]
     public function gc($maxlifetime)
     {
         foreach ($this->getHandlers() as $handler) {

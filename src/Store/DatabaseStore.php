@@ -33,16 +33,19 @@ class DatabaseStore extends BaseStore
         return ClassInfo::hasTable('HybridSessionDataObject');
     }
 
+    #[\ReturnTypeWillChange]
     public function open($save_path, $name)
     {
         // no-op
     }
 
+    #[\ReturnTypeWillChange]
     public function close()
     {
         // no-op
     }
 
+    #[\ReturnTypeWillChange]
     public function read($session_id)
     {
         if (!$this->isDatabaseReady()) {
@@ -65,6 +68,7 @@ class DatabaseStore extends BaseStore
         }
     }
 
+    #[\ReturnTypeWillChange]
     public function write($session_id, $session_data)
     {
         if (!$this->isDatabaseReady()) {
@@ -85,11 +89,13 @@ class DatabaseStore extends BaseStore
         return true;
     }
 
+    #[\ReturnTypeWillChange]
     public function destroy($session_id)
     {
         // NOP
     }
 
+    #[\ReturnTypeWillChange]
     public function gc($maxlifetime)
     {
         if (!$this->isDatabaseReady()) {
@@ -116,7 +122,7 @@ class DatabaseStore extends BaseStore
     {
         return json_encode([
             self::class,
-            base64_encode($data)
+            base64_encode($data ?? '')
         ]);
     }
 
@@ -132,9 +138,9 @@ class DatabaseStore extends BaseStore
      */
     public static function binaryDataJsonDecode($text)
     {
-        $struct = json_decode($text, true, 2);
+        $struct = json_decode($text ?? '', true, 2);
 
-        if (!is_array($struct) || count($struct) !== 2) {
+        if (!is_array($struct) || count($struct ?? []) !== 2) {
             return null;
         }
 
@@ -142,6 +148,6 @@ class DatabaseStore extends BaseStore
             return null;
         }
 
-        return base64_decode($struct[1]);
+        return base64_decode($struct[1] ?? '');
     }
 }

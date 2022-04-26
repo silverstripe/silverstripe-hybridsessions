@@ -54,7 +54,7 @@ abstract class AbstractTest extends SapphireTest
         );
         $store->write($session, serialize($data1));
         $result = $store->read($session);
-        $this->assertEquals($data1, unserialize($result));
+        $this->assertEquals($data1, unserialize($result ?? ''));
     }
 
     /**
@@ -76,7 +76,7 @@ abstract class AbstractTest extends SapphireTest
         );
         $store->write($session, serialize($data1));
         $result = $store->read($session);
-        $this->assertEquals($data1, unserialize($result));
+        $this->assertEquals($data1, unserialize($result ?? ''));
 
         // Save larger data
         $data2 = array(
@@ -85,7 +85,7 @@ abstract class AbstractTest extends SapphireTest
         );
         $store->write($session, serialize($data2));
         $result = $store->read($session);
-        $this->assertEquals($data2, unserialize($result));
+        $this->assertEquals($data2, unserialize($result ?? ''));
     }
 
     /**
@@ -102,7 +102,7 @@ abstract class AbstractTest extends SapphireTest
         );
         $store->write($session1, serialize($data1));
         $result1 = $store->read($session1);
-        $this->assertEquals($data1, unserialize($result1));
+        $this->assertEquals($data1, unserialize($result1 ?? ''));
 
         // Go to the future and test that the expiry is accurate
         DBDatetime::set_mock_now('2040-03-16 12:00:00');

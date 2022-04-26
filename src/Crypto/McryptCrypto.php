@@ -62,7 +62,7 @@ class McryptCrypto implements CryptoHandler
 
         $this->key = $key;
         $this->salt = $salt;
-        $this->saltedKey = hash_pbkdf2('sha256', $this->key, $this->salt, 1000, $this->keySize, true);
+        $this->saltedKey = hash_pbkdf2('sha256', $this->key ?? '', $this->salt ?? '', 1000, $this->keySize ?? 0, true);
     }
 
     /**
@@ -83,7 +83,7 @@ class McryptCrypto implements CryptoHandler
             $iv
         );
 
-        $hash = hash_hmac('sha256', $enc, $this->saltedKey);
+        $hash = hash_hmac('sha256', $enc ?? '', $this->saltedKey ?? '');
 
         return base64_encode($iv . $hash . $enc);
     }
@@ -98,11 +98,11 @@ class McryptCrypto implements CryptoHandler
      */
     public function decrypt($data)
     {
-        $data = base64_decode($data);
+        $data = base64_decode($data ?? '');
 
-        $iv   = substr($data, 0, $this->ivSize);
-        $hash = substr($data, $this->ivSize, 64);
-        $enc  = substr($data, $this->ivSize + 64);
+        $iv   = substr($data ?? '', 0, $this->ivSize);
+        $hash = substr($data ?? '', $this->ivSize ?? 0, 64);
+        $enc  = substr($data ?? '', $this->ivSize + 64);
 
         $cleartext = rtrim(mcrypt_decrypt(
             MCRYPT_RIJNDAEL_256,
@@ -110,10 +110,10 @@ class McryptCrypto implements CryptoHandler
             $enc,
             MCRYPT_MODE_CBC,
             $iv
-        ), "\x00");
+        ) ?? '', "\x00");
 
         // Needs to be after decrypt so it always runs, to avoid timing attack
-        $gen_hash = hash_hmac('sha256', $enc, $this->saltedKey);
+        $gen_hash = hash_hmac('sha256', $enc ?? '', $this->saltedKey ?? '');
 
         if ($gen_hash == $hash) {
             return $cleartext;
