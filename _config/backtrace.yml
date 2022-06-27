@@ -1,0 +1,10 @@
+---
+Name: hybridsessions-backtrace
+---
+SilverStripe\Dev\Backtrace:
+  ignore_function_args:
+    - ['SilverStripe\HybridSessions\Crypto\McryptCrypto', '__construct']
+    - ['SilverStripe\HybridSessions\Crypto\OpenSSLCrypto', '__construct']
+    - ['SilverStripe\HybridSessions\HybridSession', 'init']
+    - ['SilverStripe\HybridSessions\HybridSession', 'setKey']
+    - ['SilverStripe\HybridSessions\Store\BaseStore', 'setKey']
