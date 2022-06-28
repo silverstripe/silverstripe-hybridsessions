@@ -34,4 +34,15 @@ class DatabaseStoreTest extends AbstractTest
             $this->assertEquals($data, DatabaseStore::binaryDataJsonDecode(DatabaseStore::binaryDataJsonEncode($data)));
         }
     }
+
+    public function testWriteReadAndDestroy()
+    {
+        $sessionID = 'session-id-123456789';
+        $data = 'a-blob-of-session-data';
+        $store = $this->getStore();
+        $store->write($sessionID, $data);
+        $this->assertSame($data, $store->read($sessionID));
+        $store->destroy($sessionID);
+        $this->assertNull($store->read($sessionID));
+    }
 }
