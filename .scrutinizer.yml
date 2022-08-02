@@ -1,4 +1,0 @@
-inherit: true
-
-filter:
-  paths: [src/*, tests/*]
