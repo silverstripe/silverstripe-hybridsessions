@@ -2,10 +2,12 @@
 
 namespace SilverStripe\HybridSessions\Crypto;
 
+use SilverStripe\Dev\Deprecation;
+
 /**
  * Some cryptography used for Session cookie encryption. Requires the mcrypt extension.
  *
- * @deprecated 2.2.0 The PHP mcrypt library is deprecated. Please use OpenSSLCrypto instead.
+ * @deprecated 2.2.0 Use OpenSSLCrypto instead
  *
  * WARNING: Please beware that McryptCrypto does not preserve zero bytes at the end of encrypted messages.
  *          Thus, a message such as "data\x00" will become "data" after encrypt-decrypt.
@@ -57,6 +59,7 @@ class McryptCrypto implements CryptoHandler
      */
     public function __construct($key, $salt)
     {
+        Deprecation::notice('2.2.0', 'Use OpenSSLCrypto instead', Deprecation::SCOPE_CLASS);
         $this->ivSize = mcrypt_get_iv_size(MCRYPT_RIJNDAEL_256, MCRYPT_MODE_CBC);
         $this->keySize = mcrypt_get_key_size(MCRYPT_RIJNDAEL_256, MCRYPT_MODE_CBC);
 
