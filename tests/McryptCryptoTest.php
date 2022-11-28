@@ -4,6 +4,7 @@ namespace SilverStripe\HybridSessions\Tests;
 
 use SilverStripe\Dev\SapphireTest;
 use SilverStripe\HybridSessions\Crypto\McryptCrypto;
+use SilverStripe\Dev\Deprecation;
 
 /**
  * @requires extension mcrypt
@@ -13,6 +14,9 @@ class McryptCryptoTest extends SapphireTest
 {
     public function testIntegrity()
     {
+        if (Deprecation::isEnabled()) {
+            $this->markTestSkipped('Test calls deprecated code');
+        }
         $this->markTestSkipped(
             'McryptCrypto is losing zero bytes at the end of messages: ' .
             'https://github.com/silverstripe/silverstripe-hybridsessions/issues/53'
