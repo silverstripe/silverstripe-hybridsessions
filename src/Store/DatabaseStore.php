@@ -74,7 +74,7 @@ class DatabaseStore extends BaseStore
         $result = DB::query($query);
 
         if ($result && $result->numRecords()) {
-            $data = $result->first();
+            $data = $result->record();
             $decoded = static::binaryDataJsonDecode($data['Data']);
             return is_null($decoded) ? $data['Data'] : $decoded;
         }
