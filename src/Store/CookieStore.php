@@ -23,25 +23,19 @@ class CookieStore extends BaseStore
 {
     /**
      * Maximum length of a cookie value in characters
-     *
-     * @var int
      * @config
      */
-    private static $max_length = 1024;
+    private static int $max_length = 1024;
 
     /**
      * Encryption service
-     *
-     * @var HybridSessionStore_Crypto
      */
-    protected $crypto;
+    protected ?CryptoHandler $crypto = null;
 
     /**
      * Name of cookie
-     *
-     * @var string
      */
-    protected $cookie;
+    protected string $cookie = '';
 
     /**
      * Known unmodified value of this cookie. If the cookie backend has been read into the application,
@@ -50,13 +44,10 @@ class CookieStore extends BaseStore
      *
      * If the content exceeds max_length then the backend can also not maintain this cookie, also
      * setting this variable to null.
-     *
-     * @var string
      */
-    protected $currentCookieData;
+    protected ?string $currentCookieData = null;
 
-    #[\ReturnTypeWillChange]
-    public function open($save_path, $name)
+    public function open(string $save_path, string $name): bool
     {
         $this->cookie = $name . '_2';
 
@@ -69,20 +60,19 @@ class CookieStore extends BaseStore
         if ($this->currentCookieData) {
             Cookie::set($this->cookie, '');
         }
+
+        return true;
     }
 
-    #[\ReturnTypeWillChange]
-    public function close()
+    public function close(): bool
     {
+        return true;
     }
 
     /**
      * Get the cryptography store for the specified session
-     *
-     * @param string $session_id
-     * @return HybridSessionStore_Crypto
      */
-    protected function getCrypto($session_id)
+    protected function getCrypto(string $session_id): ?CryptoHandler
     {
         $key = $this->getKey();
 
@@ -97,15 +87,14 @@ class CookieStore extends BaseStore
         return $this->crypto;
     }
 
-    #[\ReturnTypeWillChange]
-    public function read($session_id)
+    public function read(string $session_id): string|false
     {
         // Check ability to safely decrypt content
         if (
             !$this->currentCookieData ||
             !($crypto = $this->getCrypto($session_id))
         ) {
-            return;
+            return false;
         }
 
         // Decrypt and invalidate old data
@@ -124,17 +113,15 @@ class CookieStore extends BaseStore
     }
 
     /**
-     * Determine if the session could be verifably written to cookie storage
-     *
-     * @return bool
+     * Determine if the session could be verifiably written to cookie storage
      */
-    protected function canWrite()
+    protected function canWrite(): bool
     {
         return !headers_sent();
     }
 
-    #[\ReturnTypeWillChange]
-    public function write($session_id, $session_data)
+
+    public function write(string $session_id, string $session_data): bool
     {
         $canWrite = $this->canWrite();
         $isExceedingCookieLimit = (strlen($session_data ?? '') > static::config()->get('max_length'));
@@ -187,8 +174,7 @@ class CookieStore extends BaseStore
         return true;
     }
 
-    #[\ReturnTypeWillChange]
-    public function destroy($session_id)
+    public function destroy(string $session_id): bool
     {
         $this->currentCookieData = null;
 
@@ -201,11 +187,12 @@ class CookieStore extends BaseStore
             $params['secure'],
             $params['httponly']
         );
+
+        return true;
     }
 
-    #[\ReturnTypeWillChange]
-    public function gc($maxlifetime)
+    public function gc(int $maxlifetime): int|false
     {
-        // NOP
+        return false;
     }
 }

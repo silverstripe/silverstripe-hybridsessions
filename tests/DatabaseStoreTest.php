@@ -43,6 +43,6 @@ class DatabaseStoreTest extends AbstractTest
         $store->write($sessionID, $data);
         $this->assertSame($data, $store->read($sessionID));
         $store->destroy($sessionID);
-        $this->assertNull($store->read($sessionID));
+        $this->assertFalse($store->read($sessionID));
     }
 }

@@ -16,7 +16,7 @@ class TestCookieStore extends CookieStore implements TestOnly
      */
     public static $override_headers_sent = null;
 
-    protected function canWrite()
+    protected function canWrite(): bool
     {
         if (self::$override_headers_sent !== null) {
             return !self::$override_headers_sent;

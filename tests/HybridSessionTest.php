@@ -53,7 +53,7 @@ class HybridSessionTest extends SapphireTest
     {
         $this->handler->expects($this->once())->method('read')->with('foosession')->willReturn(false);
         $this->instance->setHandlers([$this->handler]);
-        $this->assertSame('', $this->instance->read('foosession'));
+        $this->assertFalse($this->instance->read('foosession'));
     }
 
     public function testReadReturnsHandlerDelegateResult()
