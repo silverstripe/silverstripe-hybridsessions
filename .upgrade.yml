@@ -1,6 +1,0 @@
-mappings:
-  HybridSessionDataObject: SilverStripe\HybridSessions\Model\HybridSessionDataObject
-  HybridSessionStore_Base: SilverStripe\HybridSessions\Store\BaseStore
-  HybridSessionStore_Cookie: SilverStripe\HybridSessions\Store\CookieStore
-  HybridSessionStore_Database: SilverStripe\HybridSessions\Store\DatabaseStore
-  HybridSession: SilverStripe\HybridSessions\HybridSession
