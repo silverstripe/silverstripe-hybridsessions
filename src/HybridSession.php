@@ -11,23 +11,19 @@ class HybridSession extends BaseStore
     /**
      * List of session handlers
      *
-     * @var array
+     * @var SessionHandlerInterface[]
      */
-    protected $handlers = [];
+    protected array $handlers = [];
 
     /**
      * True if this session store has been initialised
-     *
-     * @var bool
      */
-    protected static $enabled = false;
+    protected static bool $enabled = false;
 
     /**
      * @param SessionHandlerInterface[]
-     *
-     * @return $this
      */
-    public function setHandlers($handlers)
+    public function setHandlers(array $handlers): static
     {
         $this->handlers = $handlers;
         $this->setKey($this->getKey());
@@ -35,38 +31,25 @@ class HybridSession extends BaseStore
         return $this;
     }
 
-    /**
-     * @param string
-     *
-     * @return $this
-     */
-    public function setKey($key)
+    public function setKey(?string $key): void
     {
         parent::setKey($key);
-
         foreach ($this->getHandlers() as $handler) {
-            $handler->setKey($key);
+            if (method_exists($handler, 'setKey') && is_callable([$handler, 'setKey'])) {
+                $handler->setKey($key);
+            }
         }
-
-        return $this;
     }
 
     /**
      * @return SessionHandlerInterface[]
      */
-    public function getHandlers()
+    public function getHandlers(): array
     {
         return $this->handlers ?: [];
     }
 
-    /**
-     * @param string $save_path
-     * @param string $name
-     *
-     * @return bool
-     */
-    #[\ReturnTypeWillChange]
-    public function open($save_path, $name)
+    public function open(string $save_path, string $name): bool
     {
         foreach ($this->getHandlers() as $handler) {
             $handler->open($save_path, $name);
@@ -75,11 +58,7 @@ class HybridSession extends BaseStore
         return true;
     }
 
-    /**
-     * @return bool
-     */
-    #[\ReturnTypeWillChange]
-    public function close()
+    public function close(): bool
     {
         foreach ($this->getHandlers() as $handler) {
             $handler->close();
@@ -88,13 +67,7 @@ class HybridSession extends BaseStore
         return true;
     }
 
-    /**
-     * @param string $session_id
-     *
-     * @return string
-     */
-    #[\ReturnTypeWillChange]
-    public function read($session_id)
+    public function read(string $session_id): string|false
     {
         foreach ($this->getHandlers() as $handler) {
             if ($data = $handler->read($session_id)) {
@@ -102,11 +75,10 @@ class HybridSession extends BaseStore
             }
         }
 
-        return '';
+        return false;
     }
 
-    #[\ReturnTypeWillChange]
-    public function write($session_id, $session_data)
+    public function write(string $session_id, string $session_data): bool
     {
         foreach ($this->getHandlers() as $handler) {
             if ($handler->write($session_id, $session_data)) {
@@ -117,8 +89,7 @@ class HybridSession extends BaseStore
         return false;
     }
 
-    #[\ReturnTypeWillChange]
-    public function destroy($session_id)
+    public function destroy(string $session_id): bool
     {
         foreach ($this->getHandlers() as $handler) {
             $handler->destroy($session_id);
@@ -127,12 +98,15 @@ class HybridSession extends BaseStore
         return true;
     }
 
-    #[\ReturnTypeWillChange]
-    public function gc($maxlifetime)
+    public function gc(int $maxlifetime): int|false
     {
+        $killedSession = 0;
         foreach ($this->getHandlers() as $handler) {
             $handler->gc($maxlifetime);
+            $killedSession++;
         }
+
+        return $killedSession;
     }
 
     /**
@@ -140,7 +114,7 @@ class HybridSession extends BaseStore
      *
      * @param string $key Desired session key
      */
-    public static function init($key = null)
+    public static function init(string $key = null)
     {
         $instance = Injector::inst()->get(__CLASS__);
 
@@ -158,7 +132,7 @@ class HybridSession extends BaseStore
         self::$enabled = true;
     }
 
-    public static function is_enabled()
+    public static function is_enabled(): bool
     {
         return self::$enabled;
     }

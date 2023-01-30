@@ -18,18 +18,13 @@ class DatabaseStore extends BaseStore
      */
     private const HASH_ALGO = 'sha256';
 
-    /**
-     * @var ?bool
-     */
-    private $hashAlgoAvailable = null;
+    private ?bool $hashAlgoAvailable = null;
 
     /**
      * Determine if the DB is ready to use.
-     *
-     * @return bool
      * @throws Exception
      */
-    protected function isDatabaseReady()
+    protected function isDatabaseReady(): bool
     {
         // Such as during setup of testsession prior to DB connection.
         if (!DB::is_active()) {
@@ -45,23 +40,25 @@ class DatabaseStore extends BaseStore
         return ClassInfo::hasTable('HybridSessionDataObject');
     }
 
-    #[\ReturnTypeWillChange]
-    public function open($save_path, $name)
+    public function open(string $save_path, string $name): bool
     {
-        // no-op
+        // There's nothing for us to do to initialise the session.
+        // We just return true to indicate that the store is ready to read/write session data.
+        return true;
     }
 
-    #[\ReturnTypeWillChange]
-    public function close()
+
+    public function close(): bool
     {
-        // no-op
+        // There's nothing for us to do to close the session.
+        // Returning false would indicate an error.
+        return true;
     }
 
-    #[\ReturnTypeWillChange]
-    public function read($session_id)
+    public function read(string $session_id): string|false
     {
         if (!$this->isDatabaseReady()) {
-            return null;
+            return false;
         }
 
         $query = sprintf(
@@ -78,10 +75,11 @@ class DatabaseStore extends BaseStore
             $decoded = static::binaryDataJsonDecode($data['Data']);
             return is_null($decoded) ? $data['Data'] : $decoded;
         }
+
+        return false;
     }
 
-    #[\ReturnTypeWillChange]
-    public function write($session_id, $session_data)
+    public function write(string $session_id, string $session_data): bool
     {
         if (!$this->isDatabaseReady()) {
             return false;
@@ -101,8 +99,7 @@ class DatabaseStore extends BaseStore
         return true;
     }
 
-    #[\ReturnTypeWillChange]
-    public function destroy($session_id)
+    public function destroy(string $session_id): bool
     {
         if (!$this->isDatabaseReady()) {
             return false;
@@ -115,17 +112,18 @@ class DatabaseStore extends BaseStore
         return true;
     }
 
-    #[\ReturnTypeWillChange]
-    public function gc($maxlifetime)
+    public function gc(int $maxlifetime): int|false
     {
         if (!$this->isDatabaseReady()) {
-            return;
+            return false;
         }
 
         DB::query(sprintf(
             'DELETE FROM "HybridSessionDataObject" WHERE "Expiry" < %u',
             $this->getNow()
         ));
+
+        return DB::affected_rows();
     }
 
     /**
@@ -135,10 +133,8 @@ class DatabaseStore extends BaseStore
     * binary data as text
     *
     * @param string $data This is a binary blob
-    *
-    * @return string
     */
-    public static function binaryDataJsonEncode($data)
+    public static function binaryDataJsonEncode(string $data): string
     {
         return json_encode([
             self::class,
@@ -151,12 +147,8 @@ class DatabaseStore extends BaseStore
      *
      * Silverstripe <= 4.4 does not have a binary db field implementation, so we have to store
      * binary data as text
-     *
-     * @param string $text
-     *
-     * @param null|string
      */
-    public static function binaryDataJsonDecode($text)
+    public static function binaryDataJsonDecode(string $text): ?string
     {
         $struct = json_decode($text ?? '', true, 2);
 

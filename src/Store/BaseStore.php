@@ -12,37 +12,29 @@ abstract class BaseStore implements SessionHandlerInterface
 
     /**
      * Session secret key
-     *
-     * @var string
      */
-    protected $key = null;
+    protected ?string $key = null;
 
     /**
      * Assign a new session secret key
-     *
-     * @param string $key
      */
-    public function setKey($key)
+    public function setKey(?string $key): void
     {
         $this->key = $key;
     }
 
     /**
      * Get the session secret key
-     *
-     * @return string
      */
-    protected function getKey()
+    protected function getKey(): ?string
     {
         return $this->key;
     }
 
     /**
      * Get lifetime in number of seconds
-     *
-     * @return int
      */
-    protected function getLifetime()
+    protected function getLifetime(): int
     {
         $params = session_get_cookie_params();
         $cookieLifetime = (int)$params['lifetime'];
@@ -53,10 +45,8 @@ abstract class BaseStore implements SessionHandlerInterface
 
     /**
      * Gets the current unix timestamp
-     *
-     * @return int
      */
-    protected function getNow()
+    protected function getNow(): int
     {
         return (int) DBDatetime::now()->getTimestamp();
     }

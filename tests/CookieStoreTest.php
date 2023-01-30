@@ -74,4 +74,13 @@ class CookieStoreTest extends AbstractTest
         $result = $store->read($session);
         $this->assertEmpty($result);
     }
+
+    public function testGc()
+    {
+        $store = $this->getStore();
+        $this->assertFalse(
+            $store->gc(123),
+            'CookieStore cannot clean up session because the sessions are in cookies in the browser'
+        );
+    }
 }
