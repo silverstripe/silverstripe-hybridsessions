@@ -54,7 +54,10 @@ class HybridSession extends BaseStore
         foreach ($this->getHandlers() as $handler) {
             $handler->open($save_path, $name);
         }
-
+        // Our interpretation of "or creates a new one" in
+        // https://www.php.net/manual/en/sessionhandlerinterface.open.php allows for the session to have been created
+        // in memory, to be stored by the appropriate handler on session_write_close(). If the session fails to be
+        // written, we return false in write(), so we will be alerted to there being some error.
         return true;
     }
 
@@ -74,8 +77,13 @@ class HybridSession extends BaseStore
                 return $data;
             }
         }
-
-        return false;
+        // Return a blank string if no record was found in any store
+        // The "session" still exists in memory until a new record is created in the first writable store in write()
+        // Our interpretation then of "If the record was not found" in
+        // https://www.php.net/manual/en/sessionhandlerinterface.read.php is that we have "found" the NEW session
+        // in memory. This prevents `PHP Warning: session_start(): Failed to read session data: user`
+        // when session_start() is called within SilverStripe\Control\Session::start()
+        return '';
     }
 
     public function write(string $session_id, string $session_data): bool
