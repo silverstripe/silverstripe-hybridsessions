@@ -110,6 +110,8 @@ class CookieStore extends BaseStore
                 return $data;
             }
         }
+
+        return false;
     }
 
     /**
