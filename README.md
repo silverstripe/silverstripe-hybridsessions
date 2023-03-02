@@ -17,12 +17,12 @@ multi-server issues like asset storage and databases).
 
 ## Installation
 
-* Install with composer using `composer require silverstripe/hybridsessions:*`
+* Install with composer using `composer require silverstripe/hybridsessions`
 * /dev/build?flush=all to setup the necessary tables
 * In order to initiate the session handler is is necessary to add a snippet of code to your
   \_config.php, along with a private key used to encrypt user cookies.
 
-in `mysite/_config.php`
+in `app/src/_config.php`
 
 ```php
 // Ensure that you define a sufficiently indeterminable value for SS_SESSION_KEY in your `.env`
