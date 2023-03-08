@@ -5,3 +5,6 @@ en:
       one: 'A Hybrid Session Data Object'
       other: '{count} Hybrid Session Data Objects'
     SINGULARNAME: 'Hybrid Session Data Object'
+    db_Data: Data
+    db_Expiry: Expiry
+    db_SessionID: 'Session ID'
