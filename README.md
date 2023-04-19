@@ -11,24 +11,29 @@ because the session is too large, or headers have already been set) stores it in
 This allows using Silverstripe on multiple servers without sticky sessions (as long as you solve other
 multi-server issues like asset storage and databases).
 
-## Requirements
+## Limitations
 
- * MySQL database is the only supported DB store.
+* MySQL database is the only supported DB store.
 
 ## Installation
 
-* Install with composer using `composer require silverstripe/hybridsessions`
-* /dev/build?flush=all to setup the necessary tables
-* In order to initiate the session handler is is necessary to add a snippet of code to your
-  \_config.php, along with a private key used to encrypt user cookies.
+```sh
+composer require silverstripe/hybridsessions
+```
 
-in `app/src/_config.php`
+## Setup
+
+* `/dev/build?flush=all` to setup the necessary tables
+* In order to initiate the session handler is is necessary to add a snippet of code to your
+  `_config.php` file, along with a private key used to encrypt user cookies.
+
+in `app/src/_config.php`:
 
 ```php
 // Ensure that you define a sufficiently indeterminable value for SS_SESSION_KEY in your `.env`
+use SilverStripe\Core\Environment;
 use SilverStripe\HybridSessions\HybridSession;
-
-HybridSession::init(SS_SESSION_KEY);
+HybridSession::init(Environment::getEnv('SS_SESSION_KEY'));
 ```
 
 ## Security
