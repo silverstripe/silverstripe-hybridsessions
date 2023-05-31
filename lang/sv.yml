@@ -1,0 +1,7 @@
+sv:
+  SilverStripe\HybridSessions\HybridSessionDataObject:
+    PLURALNAME: 'Hybrid sessionsdataobjekt'
+    SINGULARNAME: 'Hybrid sessionsdataobjekt'
+    db_Data: Data
+    db_Expiry: Upphör
+    db_SessionID: sessions-ID
