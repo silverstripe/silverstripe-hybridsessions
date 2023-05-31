@@ -1,0 +1,10 @@
+eo:
+  SilverStripe\HybridSessions\HybridSessionDataObject:
+    PLURALNAME: 'Hibridaj seancaj datumaj objektoj'
+    PLURALS:
+      one: 'Unu hibrida seanca datuma objekto'
+      other: '{count} hibridaj seancaj datumaj objektoj'
+    SINGULARNAME: 'Hibrida seanca datuma objekto'
+    db_Data: Datumoj
+    db_Expiry: Eksvalidiĝo
+    db_SessionID: 'Identigilo de seanco'
