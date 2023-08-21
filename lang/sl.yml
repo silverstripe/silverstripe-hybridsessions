@@ -2,10 +2,10 @@ sl:
   SilverStripe\HybridSessions\HybridSessionDataObject:
     PLURALNAME: 'Podatkovni objekti hibridne seje'
     PLURALS:
-      one: 'Podatkovni objekt hibridne seje'
-      two: '{count} podatkovna objekta hibridne seje'
       few: '{count} podatkovnih objektov hibridne seje'
+      one: 'Podatkovni objekt hibridne seje'
       other: '{count} podatkovnih objektov hibridne seje'
+      two: '{count} podatkovna objekta hibridne seje'
     SINGULARNAME: 'Podatkovni objekt hibridne seje'
     db_Data: Podatki
     db_Expiry: 'Potek veljavnosti'
