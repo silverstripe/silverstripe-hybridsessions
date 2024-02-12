@@ -1,0 +1,12 @@
+sk:
+  SilverStripe\HybridSessions\HybridSessionDataObject:
+    PLURALNAME: 'Dátové objekty hybridnej relácie'
+    PLURALS:
+      few: '{count} dátové objekty hybridnej relácie'
+      many: '{count} dátových objektov hybridnej relácie'
+      one: 'Dátový objekt hybridnej relácie'
+      other: '{count} dátových objektov hybridnej relácie'
+    SINGULARNAME: 'Dátový objekt hybridnej relácie'
+    db_Data: Dáta
+    db_Expiry: 'Vypršanie platnosti'
+    db_SessionID: 'ID relácie'
