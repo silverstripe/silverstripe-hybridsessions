@@ -137,11 +137,11 @@ class HybridSession extends BaseStore
 
         session_set_save_handler($instance, true);
 
-        self::$enabled = true;
+        HybridSession::$enabled = true;
     }
 
     public static function is_enabled(): bool
     {
-        return self::$enabled;
+        return HybridSession::$enabled;
     }
 }

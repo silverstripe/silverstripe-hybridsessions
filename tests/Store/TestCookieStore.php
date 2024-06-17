@@ -18,8 +18,8 @@ class TestCookieStore extends CookieStore implements TestOnly
 
     protected function canWrite(): bool
     {
-        if (self::$override_headers_sent !== null) {
-            return !self::$override_headers_sent;
+        if (TestCookieStore::$override_headers_sent !== null) {
+            return !TestCookieStore::$override_headers_sent;
         }
 
         parent::canWrite();
