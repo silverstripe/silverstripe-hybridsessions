@@ -137,7 +137,7 @@ class DatabaseStore extends BaseStore
     public static function binaryDataJsonEncode(string $data): string
     {
         return json_encode([
-            self::class,
+            DatabaseStore::class,
             base64_encode($data ?? '')
         ]);
     }
@@ -156,7 +156,7 @@ class DatabaseStore extends BaseStore
             return null;
         }
 
-        if (!isset($struct[0]) || !isset($struct[1]) || $struct[0] !== self::class) {
+        if (!isset($struct[0]) || !isset($struct[1]) || $struct[0] !== DatabaseStore::class) {
             return null;
         }
 
@@ -166,8 +166,8 @@ class DatabaseStore extends BaseStore
     private function encryptSessionID(string $sessionID): string
     {
         if (is_null($this->hashAlgoAvailable)) {
-            $this->hashAlgoAvailable = in_array(self::HASH_ALGO, hash_algos());
+            $this->hashAlgoAvailable = in_array(DatabaseStore::HASH_ALGO, hash_algos());
         }
-        return $this->hashAlgoAvailable ? hash(self::HASH_ALGO, $sessionID) : $sessionID;
+        return $this->hashAlgoAvailable ? hash(DatabaseStore::HASH_ALGO, $sessionID) : $sessionID;
     }
 }
