@@ -6,9 +6,14 @@ use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Core\TempFolder;
 use SilverStripe\HybridSessions\Store\CookieStore;
 use SilverStripe\HybridSessions\Tests\Store\TestCookieStore;
+use SilverStripe\Dev\SapphireTest;
 
-class CookieStoreTest extends AbstractTest
+class CookieStoreTest extends SapphireTest
 {
+    use HybridSessionsTestTrait;
+
+    protected $usesDatabase = true;
+
     protected function getStore()
     {
         $store = Injector::inst()->get(CookieStore::class);

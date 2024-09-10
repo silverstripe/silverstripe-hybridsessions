@@ -6,9 +6,14 @@ use SilverStripe\ORM\DB;
 use SilverStripe\ORM\Connect\MySQLDatabase;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\HybridSessions\Store\DatabaseStore;
+use SilverStripe\Dev\SapphireTest;
 
-class DatabaseStoreTest extends AbstractTest
+class DatabaseStoreTest extends SapphireTest
 {
+    use HybridSessionsTestTrait;
+
+    protected $usesDatabase = true;
+
     protected function setUp(): void
     {
         parent::setUp();
