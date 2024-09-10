@@ -23,7 +23,7 @@ composer require silverstripe/hybridsessions
 
 ## Setup
 
-* `/dev/build?flush=all` to setup the necessary tables
+* `sake db:build --flush` to setup the necessary tables
 * In order to initiate the session handler is is necessary to add a snippet of code to your
   `_config.php` file, along with a private key used to encrypt user cookies.
 
