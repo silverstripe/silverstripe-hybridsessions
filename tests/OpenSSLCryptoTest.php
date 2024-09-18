@@ -4,10 +4,9 @@ namespace SilverStripe\HybridSessions\Tests;
 
 use SilverStripe\Dev\SapphireTest;
 use SilverStripe\HybridSessions\Crypto\OpenSSLCrypto;
+use PHPUnit\Framework\Attributes\RequiresPhpExtension;
 
-/**
- * @requires extension openssl
- */
+#[RequiresPhpExtension('openssl')]
 class OpenSSLCryptoTest extends SapphireTest
 {
     public function testIntegrity()

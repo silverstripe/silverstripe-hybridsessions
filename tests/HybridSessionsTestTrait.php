@@ -8,10 +8,8 @@ use SilverStripe\ORM\FieldType\DBDatetime;
 use SilverStripe\HybridSessions\Store\CookieStore;
 use SilverStripe\HybridSessions\Tests\Store\TestCookieStore;
 
-abstract class AbstractTest extends SapphireTest
+trait HybridSessionsTestTrait
 {
-    protected $usesDatabase = true;
-
     protected function setUp(): void
     {
         parent::setUp();
