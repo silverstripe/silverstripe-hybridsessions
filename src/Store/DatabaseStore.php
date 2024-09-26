@@ -36,7 +36,7 @@ class DatabaseStore extends BaseStore
             throw new Exception('HybridSessions\Store\DatabaseStore currently only works with MySQL databases');
         }
 
-        // Prevent freakout during dev/build
+        // Prevent freakout while building the db
         return ClassInfo::hasTable('HybridSessionDataObject');
     }
 
