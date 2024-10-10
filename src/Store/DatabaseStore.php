@@ -68,7 +68,7 @@ class DatabaseStore extends BaseStore
             $this->getNow()
         );
 
-        $result = DB::query($query);
+        $result = DB::withPrimary(fn() => DB::query($query));
 
         if ($result && $result->numRecords()) {
             $data = $result->record();
