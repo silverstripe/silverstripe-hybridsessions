@@ -122,7 +122,7 @@ class HybridSession extends BaseStore
      *
      * @param string $key Desired session key
      */
-    public static function init(string $key = null)
+    public static function init(?string $key = null)
     {
         $instance = Injector::inst()->get(__CLASS__);
 
