@@ -58,7 +58,17 @@ class CookieStore extends BaseStore
         $this->currentCookieData = Cookie::get($this->cookie);
 
         if ($this->currentCookieData) {
-            Cookie::set($this->cookie, '');
+            $params = session_get_cookie_params();
+            Cookie::set(
+                $this->cookie,
+                '',
+                0,
+                $params['path'],
+                $params['domain'],
+                $params['secure'],
+                $params['httponly'],
+                $params['samesite']
+            );
         }
 
         return true;
@@ -142,7 +152,8 @@ class CookieStore extends BaseStore
                     $params['path'],
                     $params['domain'],
                     $params['secure'],
-                    $params['httponly']
+                    $params['httponly'],
+                    $params['samesite']
                 );
             }
 
@@ -170,7 +181,8 @@ class CookieStore extends BaseStore
             $params['path'],
             $params['domain'],
             $params['secure'],
-            $params['httponly']
+            $params['httponly'],
+            $params['samesite']
         );
 
         return true;
@@ -187,7 +199,8 @@ class CookieStore extends BaseStore
             $params['path'],
             $params['domain'],
             $params['secure'],
-            $params['httponly']
+            $params['httponly'],
+            $params['samesite']
         );
 
         return true;
