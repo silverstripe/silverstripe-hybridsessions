@@ -3,6 +3,8 @@
 namespace SilverStripe\HybridSessions;
 
 use SessionHandlerInterface;
+use SilverStripe\Control\Session;
+use SilverStripe\Control\SessionHandler\FileSessionHandler;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\HybridSessions\Store\BaseStore;
 
@@ -135,6 +137,11 @@ class HybridSession extends BaseStore
             $instance->setKey($key);
         }
 
+        // Silverstripe CMS 6.1 introduced a new way to handle session handlers.
+        // We need to set that configuration to `null` so our handler isn't replaced.
+        if (class_exists(FileSessionHandler::class)) {
+            Session::config()->set('save_handler', null);
+        }
         session_set_save_handler($instance, true);
 
         HybridSession::$enabled = true;
