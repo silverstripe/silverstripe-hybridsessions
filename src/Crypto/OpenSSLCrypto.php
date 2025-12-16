@@ -91,6 +91,12 @@ class OpenSSLCrypto implements CryptoHandler
         $iv = substr($c ?? '', 0, $ivlen);
         $hmac = substr($c ?? '', $ivlen ?? 0, $sha2len = 32);
         $ciphertext_raw = substr($c ?? '', $ivlen + $sha2len);
+
+        // Only attempt decryption if IV is long enough
+        if (strlen($iv) !== $ivlen) {
+            return false;
+        }
+
         $cleartext = openssl_decrypt(
             $ciphertext_raw ?? '',
             $cipher ?? '',
